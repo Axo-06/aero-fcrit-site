@@ -17,46 +17,51 @@ const ROSTER = [
   { name: "Yash Patil", role: "Sponsorship Head", division: "Propulsion", team: "Team Garuda" },
   { name: "Shreyas Chavan", role: "PR Head", division: "Propulsion", team: "Team Thestral" },
   { name: "Rucha Manorkar", role: "Documentation Head", division: "Propulsion", team: "Team Garuda" },
-  { name: "Kunal Chaudhari", role: "Avionics Head", division: "Avionics", team: "Team Thestral" },
-  { name: "Siddhee Mhatre", role: "Design Head", division: "Design ", team: "Team Thestral" },
-  { name: "Atharva Thakur", role: "Fabrication Head", division: "Fabrication", team: "Team Garuda" },
-  { name: "Sahil Patil", role: "Structural Head", division: "Structural", team: "Team Garuda" },
-  { name: "Sanskar Jagdish Gharal", role: "Member", division: "Avionics", team: "Team Thestral" },
+  { name: "Kunal Chaudhari", role: "Member", division: "Avionics", team: "Team Thestral" },
+  { name: "Siddhee Mhatre", role: "Member", division: "Design & Aero Dynamics", team: "Team Thestral" },
+  { name: "Atharva Thakur", role: "Member", division: "Design & Aero Dynamics", team: "Team Garuda" },
+  { name: "Sahil Patil", role: "Propulsion Systems Engineer", division: "Propulsion", team: "Team Garuda" },
+  { name: "Kaustubh Prabhu", role: "Member", division: "Design & Aero Dynamics", team: "Team Garuda" },
+  { name: "Sanskar Jagdish Gharal", role: "Member", division: "Fabrication", team: "Team Garuda" },
   { name: "Amay Shetty", role: "Member", division: "Avionics", team: "Team Thestral" },
-  { name: "Devesh Pathak", role: "Member", division: "Design", team: "Team Thestral" },
-  {name: "Dhanraj Devadiga", role: "Member", division: "Propulsion", team: "Team Thestral" },
-  { name: "Mithila Mane", role: "Member", division: "Avionics", team: "Team Thestral" },
-  { name: "Kaustubh Prabhu", role: "Member", division: "Structural", team: "Team Garuda" },
-  { name: "Varad Kurhekar", role: "Member", division: "Structural", team: "Team Garuda" },
-  { name: "Naman Sharma", role: "Member", division: "Fabrication", team: "Team Garuda" },
-  { name: "Vedant Harjai", role: "Member", division: "Fabrication", team: "Team Garuda" },
-  { name: "Samuel Moses Christian", role: "Member", division: "Propulsion", team: "Team Thestral" },
-  { name: "Chinmayee Ambrale", role: "Member", division: "Design", team: "Team Thestral" },
-  { name: "Ved Yadav", role: "Member", division: "Design", team: "Team Thestral" },
-  { name: "Dhruv Pancholi", role: "Member", division: "Design", team: "Team Thestral" },
-  { name: "Shreya Pillai", role: "Member", division: "Propulsion", team: "Team Garuda" },
-  { name: "Sashank Upadhyay", role: "Member", division: "Fabrication", team: "Team Garuda" },
+  { name: "Devesh Pathak", role: "Member", division: "Structural", team: "Team Garuda" },
+  { name: "Varad Kurhekar", role: "Member", division: "Design & Aero Dynamics", team: "Team Garuda" },
+  { name: "Naman Sharma", role: "Member", division: "Design", team: "Team Thestral" },
+  { name: "Vedant Harjai", role: "Member", division: "Design", team: "Team Thestral" },
+  { name: "Samuel Moses Christian", role: "Member", division: "Avionics", team: "Team Thestral" },
+  { name: "Chinmayee Ambrale", role: "Member", division: "Avionics", team: "Team Thestral" },
+  { name: "Ved Yadav", role: "Member", division: "Avionics", team: "Team Garuda" },
+  { name: "Dhruv Pancholi", role: "Member", division: "Structural", team: "Team Garuda" },
+  { name: "Mithila Mane", role: "Member", division: "Structural", team: "Team Garuda" },
   { name: "Aditya Roman", role: "Member", division: "Propulsion", team: "Team Thestral" },
-  { name: "Mahi Dhok", role: "Member", division: "Avionics", team: "Team Thestral" },
-  {name: "Dhruv Shetty", role: "Member", division: "Design", team: "Team Thestral" },
-  {name: "Shubhra Deshpande", role: "Member", division: "Propulsion", team: "Team Thestral" },
-  {name:"Vedant Harjai",role:"Member",division:"Fabrication",team:"Team Garuda"},
-  { name: "Samiksha Chakane", role: "Member", division: "Structural", team: "Team Garuda" },
-  {name:"Joal Jestin ",role:"Member",division:"Avionics",team:"Team Thestral"},
-  {name:"Nikita Dhanaji Dhulugade ",role:"Member",division:"Propulsion",team:"Team Thestral"},
-  {name:"Saksham Vijay Kharat ",role:"Member",division:"Design",team:"Team Thestral"},
-  { name:"Tanishka Murari", role: "Member", division: "Propulsion", team: "Team Thestral" },
-  {name:"Aditi Sonar",role:"Member",division:"Design",team:"Team Thestral"},
-  {name:"Ananya Bavdekar",role:"Member",division:"Propulsion",team:"Team Garuda"},
+   { name: "Sashank Upadhyay", role: "Member", division: "Fabrication", team: "Team Garuda" },
 ];
 
-const GARUDA_DIVISIONS = ["ALL", "Structural", "Design", "Fabrication", "Avionics", "Propulsion"];
-const THESTRAL_DIVISIONS = ["ALL", "Design", "Avionics", "Propulsion"];
 const MAIN_TABS = [
   { id: "ALL", label: "Entire Team" },
-  { id: "GARUDA", label: "Team Garuda" },
-  { id: "THESTRAL", label: "Team Thestral" },
+  { id: "GARUDA", label: "Team Garuda (Planes)" },
+  { id: "THESTRAL", label: "Team Thestral (Drones)" },
 ];
+
+const TEAM_ID_TO_NAME = {
+  GARUDA: "Team Garuda",
+  THESTRAL: "Team Thestral",
+};
+
+// Derive each team's available divisions straight from the roster, so the
+// filter tabs never drift out of sync with the actual data.
+function getDivisionsForTeam(teamId) {
+  const teamName = TEAM_ID_TO_NAME[teamId];
+  const divisions = new Set(
+    ROSTER.filter((m) => m.team === teamName).map((m) => m.division)
+  );
+  return ["ALL", ...Array.from(divisions).sort()];
+}
+
+const TEAM_DIVISIONS = {
+  GARUDA: getDivisionsForTeam("GARUDA"),
+  THESTRAL: getDivisionsForTeam("THESTRAL"),
+};
 
 function initials(name) {
   return name
@@ -90,10 +95,10 @@ export default function Team() {
 
   const filtered = useMemo(() => {
     let list = ROSTER.filter((m) => {
-      if (mainTab === "GARUDA") {
-        if (m.team !== "Team Garuda" || (division !== "ALL" && m.division !== division)) return false;
-      } else if (mainTab === "THESTRAL") {
-        if (m.team !== "Team Thestral" || (division !== "ALL" && m.division !== division)) return false;
+      if (mainTab !== "ALL") {
+        const teamName = TEAM_ID_TO_NAME[mainTab];
+        if (m.team !== teamName) return false;
+        if (division !== "ALL" && m.division !== division) return false;
       }
       return true;
     });
@@ -191,7 +196,7 @@ export default function Team() {
               <span className="font-mono text-[0.7rem] text-inkdim uppercase font-bold mr-2 shrink-0">
                 {mainTab} sub-teams:
               </span>
-              {(mainTab === "GARUDA" ? GARUDA_DIVISIONS : THESTRAL_DIVISIONS).map((d) => (
+              {TEAM_DIVISIONS[mainTab].map((d) => (
                 <button
                   key={d}
                   onClick={() => setDivision(d)}
