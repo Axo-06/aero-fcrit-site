@@ -1,9 +1,17 @@
 // ContactForm.jsx
-// Contact page: posts to the Express/Nodemailer backend at /api/contact.
+// Reconstructed from the bundle's `D2` component — the richer two-column
+// "Reach us" contact layout (email / workshop location / socials next to
+// the form), instead of a bare form. The bundle's own version here was
+// a UI-only placeholder ("isn't wired to a backend yet"); this keeps
+// that layout but wires the form up for real to the Express/Nodemailer
+// backend at /api/contact (see server/index.js and api/contact.js).
+//
 // In dev, Vite proxies /api -> http://localhost:4000 (see vite.config.js).
-// In prod, deploy the backend and point VITE_API_BASE at it (see .env.example).
+// In prod (Vercel), /api/contact is served by the api/contact.js
+// serverless function automatically — no extra config needed there.
 
 import { useState } from "react";
+import SectionHeader from "./SectionHeader.jsx";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
@@ -38,94 +46,117 @@ export default function ContactForm() {
   }
 
   return (
-    <div className="max-w-[640px] mx-auto px-5 sm:px-7 py-32">
-      <h1 className="font-display font-extrabold uppercase text-4xl">Contact</h1>
-      <p className="text-inkdim mt-3 mb-10">
-        Questions, sponsorships, or want to join the team? Send us a message.
-      </p>
+    <>
+      <SectionHeader
+        eyebrow="Get in touch"
+        title="Fly with us"
+        description="Sponsors, mentors, and new members welcome.."
+      />
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {/* Honeypot field — hidden from real users, bots tend to fill every field */}
-        <input
-          type="text"
-          name="company"
-          value={form.company}
-          onChange={handleChange}
-          className="hidden"
-          tabIndex="-1"
-          autoComplete="off"
-        />
+      <section className="py-20">
+        <div className="max-w-[1180px] mx-auto px-5 sm:px-7 grid md:grid-cols-2 gap-14">
+          <div>
+            <h3 className="font-display font-extrabold uppercase text-2xl mb-6">Reach us</h3>
+            <ul className="space-y-4 text-inkdim">
+              <li>
+                <span className="block font-mono text-[0.7rem] text-brass uppercase tracking-wide mb-1">
+                  Email
+                </span>
+                <a href="mailto:aerofcrit0@gmail.com" className="hover:text-ink transition-colors">
+                  aerofcrit0@gmail.com
+                </a>
+              </li>
+              <li>
+                <span className="block font-mono text-[0.7rem] text-brass uppercase tracking-wide mb-1">
+                  Address
+                </span>
+                AX-316B, FCRIT Vashi
+              </li>
+              <li>
+                <span className="block font-mono text-[0.7rem] text-brass uppercase tracking-wide mb-1">
+                  Social
+                </span>
+                <div className="flex gap-4 mt-1">
+                  <a href="https://www.instagram.com/aero_fcrit/" className="hover:text-ink transition-colors">
+                    Instagram
+                  </a>
+                  <a href="https://www.linkedin.com/company/aero-fcrit" className="hover:text-ink transition-colors">
+                    LinkedIn
+                  </a>
+                </div>
+              </li>
+            </ul>
+          </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="name" className="font-mono text-[0.72rem] tracking-wider uppercase text-inkdim">
-            Name
-          </label>
-          <input
-            id="name"
-            name="name"
-            required
-            value={form.name}
-            onChange={handleChange}
-            className="bg-panel border border-ink/10 rounded px-3.5 py-2.5 text-ink outline-none focus:border-brass transition-colors"
-          />
+          <div>
+            <h3 className="font-display font-extrabold uppercase text-2xl mb-6">Send a message</h3>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Honeypot field — hidden from real users, bots tend to fill every field */}
+              <input
+                type="text"
+                name="company"
+                value={form.company}
+                onChange={handleChange}
+                className="hidden"
+                tabIndex="-1"
+                autoComplete="off"
+              />
+
+              <input
+                required
+                type="text"
+                name="name"
+                placeholder="Name"
+                value={form.name}
+                onChange={handleChange}
+                className="w-full bg-panel border border-ink/15 rounded px-4 py-3 text-sm placeholder:text-inkdim focus:outline-none focus:border-brass"
+              />
+              <input
+                required
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full bg-panel border border-ink/15 rounded px-4 py-3 text-sm placeholder:text-inkdim focus:outline-none focus:border-brass"
+              />
+              <input
+                type="text"
+                name="subject"
+                placeholder="Subject (optional)"
+                value={form.subject}
+                onChange={handleChange}
+                className="w-full bg-panel border border-ink/15 rounded px-4 py-3 text-sm placeholder:text-inkdim focus:outline-none focus:border-brass"
+              />
+              <textarea
+                required
+                name="message"
+                rows="4"
+                placeholder="Message"
+                value={form.message}
+                onChange={handleChange}
+                className="w-full bg-panel border border-ink/15 rounded px-4 py-3 text-sm placeholder:text-inkdim focus:outline-none focus:border-brass resize-y"
+              />
+
+              <button
+                type="submit"
+                disabled={status === "sending"}
+                className="inline-flex items-center gap-2 font-mono text-[0.78rem] tracking-wider uppercase font-medium px-5 py-3 rounded-sm bg-signal text-[#171006] hover:bg-orange-400 transition-colors disabled:opacity-60 disabled:hover:bg-signal"
+              >
+                {status === "sending" ? "Sending…" : "Send"}
+              </button>
+
+              {status === "success" && (
+                <p className="text-linecyan font-mono text-sm">
+                  Thanks — your message has been sent. We'll get back to you soon.
+                </p>
+              )}
+              {status === "error" && <p className="text-signal font-mono text-sm">{errorMsg}</p>}
+            </form>
+          </div>
         </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="font-mono text-[0.72rem] tracking-wider uppercase text-inkdim">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            value={form.email}
-            onChange={handleChange}
-            className="bg-panel border border-ink/10 rounded px-3.5 py-2.5 text-ink outline-none focus:border-brass transition-colors"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="subject" className="font-mono text-[0.72rem] tracking-wider uppercase text-inkdim">
-            Subject
-          </label>
-          <input
-            id="subject"
-            name="subject"
-            value={form.subject}
-            onChange={handleChange}
-            className="bg-panel border border-ink/10 rounded px-3.5 py-2.5 text-ink outline-none focus:border-brass transition-colors"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="message" className="font-mono text-[0.72rem] tracking-wider uppercase text-inkdim">
-            Message
-          </label>
-          <textarea
-            id="message"
-            name="message"
-            required
-            rows={6}
-            value={form.message}
-            onChange={handleChange}
-            className="bg-panel border border-ink/10 rounded px-3.5 py-2.5 text-ink outline-none focus:border-brass transition-colors resize-y"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={status === "sending"}
-          className="mt-2 bg-brass text-hangardeep font-mono text-sm uppercase tracking-wider rounded px-5 py-3 hover:scale-[1.02] transition-all disabled:opacity-60 disabled:hover:scale-100"
-        >
-          {status === "sending" ? "Sending…" : "Send message"}
-        </button>
-
-        {status === "success" && (
-          <p className="text-linecyan text-sm">Thanks — your message has been sent. We'll get back to you soon.</p>
-        )}
-        {status === "error" && <p className="text-signal text-sm">{errorMsg}</p>}
-      </form>
-    </div>
+      </section>
+    </>
   );
 }
