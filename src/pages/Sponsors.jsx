@@ -6,21 +6,29 @@ import SectionHeader from "../components/SectionHeader.jsx";
 
 const TIERS = [
   {
-    name: "Title Sponsor",
+    name: "Technical Partner (₹25,000-₹50,000)",
     perks: [
-      "Logo on all airframes",
-      "Named flight-test day",
-      "Top billing on every page",
-      "Dedicated build feature",
+      "Logo placement on UAV platforms (drones and planes)",
+      "Recognition as 'Official Components Partner' in all club communications",
+      "Integration of sponsor components in competition UAVs (ADDC/DDC)",
+      "Product showcase posts/reels featuring UAV builds",
+      "Promotion during AeroFCRIT technical events",
+      "Along with all  benefits of Outreach Partner",
     ],
   },
   {
-    name: "Gold Sponsor",
-    perks: ["Logo on drone division", "Feature in flight log", "Social media shoutouts"],
+    name: "Outreach Partner (₹15,000-₹30,000)",
+    perks: [
+      "On-campus seminar/workshop opportunity",
+      "Pamphlet distribution and help desk during college events",
+      "Logo on event banners",
+      "1-2 dedicated social media posts",
+      "Along with all benefits of Associate Partner",
+    ],
   },
   {
-    name: "Silver Sponsor",
-    perks: ["Logo on sponsors page", "Mention at events"],
+    name: "Associate Partner (₹8,000-₹15,000)",
+    perks: ["Logo on social media and teanm website", "Mentions in Instagram posts/stories","Acknowledgment in technical presentations and reports"],
   },
 ];
 
@@ -32,7 +40,7 @@ export default function Sponsors() {
       <SectionHeader
         eyebrow="Partners"
         title="Sponsors"
-        description="Placeholder tiers and perks — replace with your club's real sponsorship packages and logos."
+        description="We are always looking for new sponsors to support our initiatives and events.Please reach out to us if you are interested in sponsoring us or collaborating with us."
       />
       <section className="py-20">
         <div className="max-w-[1180px] mx-auto px-7 flex justify-center mb-16">
