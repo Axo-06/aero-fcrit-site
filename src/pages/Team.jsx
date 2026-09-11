@@ -1,6 +1,6 @@
 // Team.jsx
 // Reconstructed from the bundle's `C2` component and its `bf` roster
-// dataset — real member names/roles/bios, not placeholder copy. The
+// dataset — real member names/roles, not placeholder copy. The
 // bundle leans on framer-motion for card layout animation and a pill
 // that slides between filter tabs; this rebuild keeps the same data,
 // filters, search, and profile modal using plain state + CSS
@@ -10,36 +10,52 @@ import { useEffect, useMemo, useState } from "react";
 import SectionHeader from "../components/SectionHeader.jsx";
 
 const ROSTER = [
-  { name: "Yuvraj Nalavde", role: "Garuda Captain", division: "Leadership", team: "Team Garuda", bio: "Directs overall club vision, technical operations, and national competition readiness." },
-  { name: "Vedang Vaishampayan", role: "Garuda Vice Captain", division: "Avionics", team: "Team Garuda", bio: "Guides overall club members, technical operations, and social operations." },
-  { name: "Vinay Desai", role: "Thestral Captain", division: "Leadership", team: "Team Thestral", bio: "Directs overall club vision, technical operations, and national competition readiness." },
-  { name: "Aditya Salgaonkar", role: "Thestral Vice Captain", division: "Leadership", team: "Team Thestral", bio: "Coordinates aerostructure design and mission payload delivery for fixed-wing aircraft." },
-  { name: "Kaustubh Prabhu", role: "Member", division: "Design & Aero Dynamics", team: "Team Garuda", bio: "Performs airflow simulations, airfoil selection, and computational fluid dynamics analysis." },
-  { name: "Atharva Thakur", role: "Member", division: "Design & Aero Dynamics", team: "Team Garuda", bio: "Analyzes lift-to-drag ratios and stability parameters under variable wind conditions." },
-  { name: "Varad Kurhekar", role: "Member", division: "Design & Aero Dynamics", team: "Team Garuda", bio: "Optimizes wing sweep, dihedral angles, and structural ribs for max payload capacity." },
-  { name: "Sashank Upadhyay", role: "Member", division: "Fabrication", team: "Team Garuda", bio: "Executes composite mold forming, precision joining, and surface finishing." },
-  { name: "Yash Patil", role: "Propulsion Systems Engineer", division: "Propulsion", team: "Team Garuda", bio: "Tests brushless motor thrust curves, ESC tuning, and optimal propeller pitch selection." },
-  { name: "Sahil Patil", role: "Propulsion Systems Engineer", division: "Propulsion", team: "Team Garuda", bio: "Tests brushless motor thrust curves, ESC tuning, and optimal propeller pitch selection." },
-  { name: "Naman Sharma", role: "Member", division: "Design", team: "Team Thestral", bio: "Engineers custom carbon-fiber quadcopter frames for optimized strength-to-weight ratio." },
-  { name: "Vedant Harjai", role: "Member", division: "Design", team: "Team Thestral", bio: "Models custom 3D-printed vibration isolation mounts and payload drop mechanisms." },
-  { name: "Samuel Moses Christian", role: "Member", division: "Avionics", team: "Team Thestral", bio: "Develops autonomous flight software, GPS lock algorithms, and telemetry links." },
-  { name: "Amay Shetty", role: "Member", division: "Avionics", team: "Team Thestral", bio: "Integrates real-time sensor fusion for IMUs, optical flow, and obstacle avoidance." },
-  { name: "Chinmayee Ambrale", role: "Member", division: "Avionics", team: "Team Thestral", bio: "Designs onboard power distribution boards and noise-filtered signal lines." },
-  { name: "Ved Yadav", role: "Member", division: "Avionics", team: "Team Garuda", bio: "Configures flight controllers, power distribution, and fail-safe return protocols." },
-  { name: "Sanskar Jagdish Gharal", role: "Member", division: "Fabrication", team: "Team Garuda", bio: "Specializes in carbon-fiber vacuum bagging, balsa cutting, and precision layup." },
-  { name: "Devesh Pathak", role: "Member", division: "Structural", team: "Team Garuda", bio: "Engineers lightweight airframe spars and stress-resistant fuselage joints." },
-  { name: "Dhruv Pancholi", role: "Member", division: "Structural", team: "Team Garuda", bio: "Models parametric 3D CAD assemblies and performs structural FEA simulations." },
-  { name: "Mithila Mane", role: "Member", division: "Structural", team: "Team Garuda", bio: "Validates static structural loads and carbon-fiber reinforcement zones." },
-  { name: "Sameera Chinchmalatpure", role: "Treasurer", division: "GCS", team: "Team Thestral", bio: "Configures ground station telemetry dashboards, mission planning, and live video feed." },
-  { name: "Aditya Roman", role: "Member", division: "Propulsion", team: "Team Thestral", bio: "Calibrates high-KV motor thrust setups and executes high-agility test maneuvers." },
+  { name: "Yuvraj Nalavde", role: "Garuda Captain", division: "Leadership", team: "Team Garuda" },
+  { name: "Vedang Vaishampayan", role: "Garuda Vice Captain", division: "Avionics", team: "Team Garuda" },
+  { name: "Vinay Desai", role: "Thestral Captain", division: "Leadership", team: "Team Thestral" },
+  { name: "Aditya Salgaonkar", role: "Thestral Vice Captain", division: "Leadership", team: "Team Thestral" },
+  { name: "Yash Patil", role: "Sponsorship Head", division: "Propulsion", team: "Team Garuda" },
+  { name: "Shreyas Chavan", role: "PR Head", division: "Propulsion", team: "Team Thestral" },
+  { name: "Rucha Manorkar", role: "Documentation Head", division: "Propulsion", team: "Team Garuda" },
+  { name: "Kunal Chaudhari", role: "Avionics Head", division: "Avionics", team: "Team Thestral" },
+  { name: "Siddhee Mhatre", role: "Design Head", division: "Design ", team: "Team Thestral" },
+  { name: "Atharva Thakur", role: "Fabrication Head", division: "Fabrication", team: "Team Garuda" },
+  { name: "Sahil Patil", role: "Structural Head", division: "Structural", team: "Team Garuda" },
+  { name: "Sanskar Jagdish Gharal", role: "Member", division: "Avionics", team: "Team Thestral" },
+  { name: "Amay Shetty", role: "Member", division: "Avionics", team: "Team Thestral" },
+  { name: "Devesh Pathak", role: "Member", division: "Design", team: "Team Thestral" },
+  {name: "Dhanraj Devadiga", role: "Member", division: "Propulsion", team: "Team Thestral" },
+  { name: "Mithila Mane", role: "Member", division: "Avionics", team: "Team Thestral" },
+  { name: "Kaustubh Prabhu", role: "Member", division: "Structural", team: "Team Garuda" },
+  { name: "Varad Kurhekar", role: "Member", division: "Structural", team: "Team Garuda" },
+  { name: "Naman Sharma", role: "Member", division: "Fabrication", team: "Team Garuda" },
+  { name: "Vedant Harjai", role: "Member", division: "Fabrication", team: "Team Garuda" },
+  { name: "Samuel Moses Christian", role: "Member", division: "Propulsion", team: "Team Thestral" },
+  { name: "Chinmayee Ambrale", role: "Member", division: "Design", team: "Team Thestral" },
+  { name: "Ved Yadav", role: "Member", division: "Design", team: "Team Thestral" },
+  { name: "Dhruv Pancholi", role: "Member", division: "Design", team: "Team Thestral" },
+  { name: "Shreya Pillai", role: "Member", division: "Propulsion", team: "Team Garuda" },
+  { name: "Sashank Upadhyay", role: "Member", division: "Fabrication", team: "Team Garuda" },
+  { name: "Aditya Roman", role: "Member", division: "Propulsion", team: "Team Thestral" },
+  { name: "Mahi Dhok", role: "Member", division: "Avionics", team: "Team Thestral" },
+  {name: "Dhruv Shetty", role: "Member", division: "Design", team: "Team Thestral" },
+  {name: "Shubhra Deshpande", role: "Member", division: "Propulsion", team: "Team Thestral" },
+  {name:"Vedant Harjai",role:"Member",division:"Fabrication",team:"Team Garuda"},
+  { name: "Samiksha Chakane", role: "Member", division: "Structural", team: "Team Garuda" },
+  {name:"Joal Jestin ",role:"Member",division:"Avionics",team:"Team Thestral"},
+  {name:"Nikita Dhanaji Dhulugade ",role:"Member",division:"Propulsion",team:"Team Thestral"},
+  {name:"Saksham Vijay Kharat ",role:"Member",division:"Design",team:"Team Thestral"},
+  { name:"Tanishka Murari", role: "Member", division: "Propulsion", team: "Team Thestral" },
+  {name:"Aditi Sonar",role:"Member",division:"Design",team:"Team Thestral"},
+  {name:"Ananya Bavdekar",role:"Member",division:"Propulsion",team:"Team Garuda"},
 ];
 
-const GARUDA_DIVISIONS = ["ALL", "Structural", "Design & Aero Dynamics", "Fabrication", "Avionics", "Propulsion"];
-const THESTRAL_DIVISIONS = ["ALL", "GCS", "Design", "Avionics", "Propulsion"];
+const GARUDA_DIVISIONS = ["ALL", "Structural", "Design", "Fabrication", "Avionics", "Propulsion"];
+const THESTRAL_DIVISIONS = ["ALL", "Design", "Avionics", "Propulsion"];
 const MAIN_TABS = [
   { id: "ALL", label: "Entire Team" },
-  { id: "GARUDA", label: "Team Garuda (Planes)" },
-  { id: "THESTRAL", label: "Team Thestral (Drones)" },
+  { id: "GARUDA", label: "Team Garuda" },
+  { id: "THESTRAL", label: "Team Thestral" },
 ];
 
 function initials(name) {
@@ -215,8 +231,7 @@ export default function Team() {
                       {m.team}
                     </div>
                     <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out bg-gradient-to-t from-hangardeep via-hangardeep/95 to-transparent pt-10 pb-3 px-4">
-                      <p className="text-[0.72rem] leading-snug text-ink/85 line-clamp-3">{m.bio}</p>
-                      <span className="mt-2 inline-flex items-center gap-1 font-mono text-[0.64rem] uppercase tracking-wider text-brass">
+                      <span className="inline-flex items-center gap-1 font-mono text-[0.64rem] uppercase tracking-wider text-brass">
                         View profile
                         <svg viewBox="0 0 12 10" className="w-2.5 h-2.5" fill="none">
                           <path d="M1 5H11M11 5L7 1M11 5L7 9" stroke="currentColor" strokeWidth="1.4" />
@@ -271,7 +286,6 @@ export default function Team() {
                 </div>
                 <h3 className="font-display font-extrabold text-2xl sm:text-3xl leading-tight">{active.name}</h3>
                 <p className="font-mono text-sm text-linecyan font-medium mt-1">{active.role}</p>
-                <p className="text-[0.95rem] text-inkdim leading-relaxed mt-5 max-w-md">{active.bio}</p>
               </div>
             </div>
           </div>
