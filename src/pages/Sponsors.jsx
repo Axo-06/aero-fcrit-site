@@ -24,24 +24,6 @@ const TIERS = [
   },
 ];
 
-// Tiered sponsor logo wall — replace name/logo/url with each partner's real details.
-// `logo` paths resolve from /public, so drop files in public/sponsors/ and point here.
-const SPONSOR_LOGOS = {
-  Title: [
-    { name: "Titanium Aerostructures", logo: "/sponsors/placeholder-logo.svg", url: "https://example.com" },
-  ],
-  Gold: [
-    { name: "Meridian Avionics", logo: "/sponsors/placeholder-logo.svg", url: "https://example.com" },
-    { name: "Falcon Composites", logo: "/sponsors/placeholder-logo.svg", url: "https://example.com" },
-  ],
-  Silver: [
-    { name: "Orbit Fasteners", logo: "/sponsors/placeholder-logo.svg", url: "https://example.com" },
-    { name: "Harbor Machine Works", logo: "/sponsors/placeholder-logo.svg", url: "https://example.com" },
-    { name: "Aegis Insurance", logo: "/sponsors/placeholder-logo.svg", url: "https://example.com" },
-    { name: "Blueline Logistics", logo: "/sponsors/placeholder-logo.svg", url: "https://example.com" },
-  ],
-};
-
 const SPONSORSHIP_DECK_URL = "/sponsors/AERO-FCRIT-Sponsorship-Deck.pdf";
 
 export default function Sponsors() {
@@ -80,38 +62,6 @@ export default function Sponsors() {
               >
                 Inquire
               </Link>
-            </div>
-          ))}
-        </div>
-
-        <div className="max-w-[1180px] mx-auto px-7 mt-16 space-y-12">
-          {Object.entries(SPONSOR_LOGOS).map(([tier, sponsors]) => (
-            <div key={tier}>
-              <h4 className="font-mono text-[0.72rem] tracking-wider uppercase text-inkdim mb-6">
-                {tier} partners
-              </h4>
-              <div
-                className={`grid grid-cols-2 gap-4 ${
-                  tier === "Title" ? "md:grid-cols-1" : tier === "Gold" ? "md:grid-cols-2" : "md:grid-cols-4"
-                }`}
-              >
-                {sponsors.map((s) => (
-                  <a
-                    key={s.name}
-                    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer sponsored"
-                    title={s.name}
-                    className="h-24 rounded border border-ink/15 bg-panel flex items-center justify-center p-4 grayscale hover:grayscale-0 hover:border-brass transition-all"
-                  >
-                    <img
-                      src={s.logo}
-                      alt={`${s.name} logo`}
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </a>
-                ))}
-              </div>
             </div>
           ))}
         </div>
