@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Real theme tokens, pulled from the original build's compiled CSS
+   (assets/index-CziEJBZ1.css) — a Tailwind config, not hand-picked. */
+:root {
+  --ink: #f1ecdd;        /* rgb(241 236 221) */
+  --inkdim: #afc0b6;      /* rgb(175 192 182) */
+  --hangar: #122420;      /* rgb(18 36 32) */
+  --hangardeep: #0c1a17;  /* rgb(12 26 23) */
+  --linecyan: #7fc8be;    /* rgb(127 200 190) */
+  --brass: #ce9e52;       /* rgb(206 158 82) */
+  --signal: #e2572b;      /* rgb(226 87 43) */
+  --panel: #1a342c;       /* rgb(26 52 44) */
+}
+
+body {
+  margin: 0;
+  background: var(--hangar);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Blueprint-grid backdrop used behind hero/section headers.
+   Referenced by Hero.jsx and SectionHeader.jsx but never defined —
+   reconstructed here from the site's engineering/schematic aesthetic. */
+.blueprint-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(127, 200, 190, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(127, 200, 190, 0.06) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+}
+
+.blueprint-grid-fine {
+  background-image:
+    linear-gradient(rgba(127, 200, 190, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(127, 200, 190, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Exploded-diagram parts (Drones/Aircraft pages) */
+.part {
+  fill: none;
+  stroke: var(--brass);
+  stroke-width: 2;
+  transition: transform 0.2s linear;
+}
+.part.accent {
+  stroke: var(--linecyan);
+}
+.part-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--inkdim);
+  background: var(--hangardeep);
+  border: 1px solid rgba(241, 236, 221, 0.12);
+  padding: 3px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* News ticker marquee */
+.ticker-track {
+  animation: ticker-scroll 28s linear infinite;
+}
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Achievements timeline connector */
+@keyframes flow-line {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 32px;
+  }
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
