@@ -15,7 +15,7 @@ const ROSTER = [
   { name: "Vinay Desai", role: "Thestral Captain", division: "Leadership", team: "Team Thestral" },
   { name: "Aditya Salgaonkar", role: "Thestral Vice Captain", division: "Leadership", team: "Team Thestral" },
   { name: "Yash Patil", role: "Sponsorship Head", division: "Propulsion", team: "Team Garuda" },
-  { name: "Shreyas Chavan", role: "PR Head", division: "Propulsion", team: "Team Thestral" },
+  { name: "Shreyas Chavan", role: "Propulsion Head · PR Head", division: "Propulsion", team: "Team Thestral" },
   { name: "Rucha Manorkar", role: "Documentation Head", division: "Propulsion", team: "Team Garuda" },
   { name: "Kunal Chaudhari", role: "Avionics Head", division: "Avionics", team: "Team Thestral" },
   { name: "Siddhee Mhatre", role: "Design Head", division: "Design", team: "Team Thestral" },
