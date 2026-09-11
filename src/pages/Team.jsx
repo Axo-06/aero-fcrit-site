@@ -63,9 +63,9 @@ const TEAM_ID_TO_NAME = {
 // Derive each team's available divisions straight from the roster, so the
 // filter tabs never drift out of sync with the actual data.
 function getDivisionsForTeam(teamId) {
-  const teamName = TEAM_ID_TO_NAME[teamId];
+  const teamName = TEAM_ID_TO_NAME[teamId]; 
   const divisions = new Set(
-    ROSTER.filter((m) => m.team === teamName).map((m) => m.division)
+    ROSTER.filter((m) => m.team === teamName && m.division !== "Leadership").map((m) => m.division)
   );
   return ["ALL", ...Array.from(divisions).sort()];
 }
