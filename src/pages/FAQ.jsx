@@ -15,7 +15,7 @@ const QUESTIONS = [
   },
   {
     q: "How much time does the club expect per week?",
-    a: "Placeholder answer — fill in your club's real expectations around workshop hours and build sprints.",
+    a: "    ",
   },
   {
     q: "Is there a membership fee?",
@@ -47,7 +47,7 @@ export default function FAQ() {
       <SectionHeader
         eyebrow="Good to know"
         title="FAQ"
-        description="Placeholder questions and answers — tap any question to expand it."
+        description="Frequently asked questions and answers — tap any question to expand it."
       />
       <section className="py-16">
         <div className="max-w-[780px] mx-auto px-5 sm:px-7">
@@ -83,7 +83,7 @@ export default function FAQ() {
           })}
           <p className="font-mono text-[0.72rem] text-inkdim mt-10">
             <span className="text-signal">⚠ </span>
-            Placeholder Q&A — replace with your club's real, frequently-asked questions.
+            If you have any other questions, feel free to reach out to us at the email address listed on our Contact page, or send us a message through the Contact form. We will get back to you as soon as possible.
           </p>
         </div>
       </section>

@@ -10,8 +10,34 @@ import "dotenv/config";
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
-app.use(express.json());
+// Trust only the first proxy hop (e.g. your reverse proxy / load balancer).
+// Without this, req.ip falls back to the raw socket address and ignores
+// X-Forwarded-For, which is what we want unless you know you're behind
+// exactly one trusted proxy — adjust if your deployment differs.
+app.set("trust proxy", 1);
+
+// Restrict CORS to known origins instead of allowing any website to call
+// this endpoint from a visitor's browser (which lets third parties spend
+// your SMTP quota / rate-limit budget). Set ALLOWED_ORIGINS as a
+// comma-separated list in your env, e.g. "https://aerofcrit.com".
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow same-origin/non-browser requests (no Origin header) and
+      // requests from the configured allowlist.
+      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+  })
+);
+app.use(express.json({ limit: "20kb" }));
 
 // Basic in-memory rate limiter: max 5 submissions per IP per 10 minutes.
 // Not production-grade (resets on restart, per-process only) but stops
@@ -27,6 +53,17 @@ function isRateLimited(ip) {
   submissions.set(ip, timestamps);
   return timestamps.length > MAX_PER_WINDOW;
 }
+
+// Periodically drop IPs with no recent activity so the map can't grow
+// unbounded for the life of the process.
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, timestamps] of submissions) {
+    const recent = timestamps.filter((t) => now - t < WINDOW_MS);
+    if (recent.length === 0) submissions.delete(ip);
+    else submissions.set(ip, recent);
+  }
+}, WINDOW_MS).unref();
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -47,14 +84,25 @@ function escapeHtml(str = "") {
     .replace(/'/g, "&#039;");
 }
 
+// Strips CR/LF and other control characters so user input can never
+// inject extra headers (e.g. "Bcc:") into the outgoing email. Apply this
+// to anything that ends up in a mail header (subject, name, from/reply-to
+// display parts) — not to the message body, which doesn't need it.
+function sanitizeHeaderValue(str = "") {
+  return String(str)
+    .replace(/[\r\n]+/g, " ")
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "")
+    .trim();
+}
+
 app.post("/api/contact", async (req, res) => {
   try {
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const ip = req.ip || req.socket.remoteAddress;
     if (isRateLimited(ip)) {
       return res.status(429).json({ error: "Too many submissions. Please try again later." });
     }
 
-    const { name, email, subject, message, company } = req.body || {};
+    let { name, email, subject, message, company } = req.body || {};
 
     // Honeypot field: real users never fill this in (it's hidden via
     // CSS on the form). If it has a value, silently pretend success.
@@ -65,6 +113,9 @@ app.post("/api/contact", async (req, res) => {
     if (!name || !email || !message) {
       return res.status(400).json({ error: "Name, email, and message are required." });
     }
+    if (name.length > 200 || (subject && subject.length > 200)) {
+      return res.status(400).json({ error: "Input is too long." });
+    }
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
       return res.status(400).json({ error: "Please provide a valid email address." });
@@ -72,6 +123,12 @@ app.post("/api/contact", async (req, res) => {
     if (message.length > 5000) {
       return res.status(400).json({ error: "Message is too long." });
     }
+
+    // Sanitize anything that lands in a header. `email` is already
+    // constrained by emailPattern (no whitespace allowed), but name/subject
+    // are free text and must not be allowed to inject header lines.
+    name = sanitizeHeaderValue(name);
+    subject = subject ? sanitizeHeaderValue(subject) : subject;
 
     await transporter.sendMail({
       from: `"Aero FCRIT Website" <${process.env.SMTP_USER}>`,

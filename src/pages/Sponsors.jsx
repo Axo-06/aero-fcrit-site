@@ -32,7 +32,7 @@ const TIERS = [
   },
 ];
 
-const SPONSORSHIP_DECK_URL = "/sponsors/AERO-FCRIT-Sponsorship-Deck.pdf";
+const SPONSORSHIP_DECK_URL = "/sponsors/AERO-FCRIT-Sponsorship-Deck.pdf"; 
 
 export default function Sponsors() {
   return (
