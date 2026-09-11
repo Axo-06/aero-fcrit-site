@@ -7,11 +7,11 @@ import SectionHeader from "../components/SectionHeader.jsx";
 const QUESTIONS = [
   {
     q: "Do I need prior flying or engineering experience to join?",
-    a: "No — placeholder answer. Most clubs like this welcome complete beginners and pair them with an experienced lead on their first build.",
+    a: "No -you don't need any prior flying or engineering experience to join. We welcome complete beginners and pair you with an experienced lead on your first build..",
   },
   {
     q: "Which division should I join — Drones or Aircraft?",
-    a: "Placeholder answer — describe how new members choose between the Unmanned Systems and Fixed Wing divisions.",
+    a: "It depends on your skills and interests, and on availability in each division at the time you join.",
   },
   {
     q: "How much time does the club expect per week?",
@@ -19,15 +19,15 @@ const QUESTIONS = [
   },
   {
     q: "Is there a membership fee?",
-    a: "Placeholder answer — replace with your actual fee structure, if any.",
+    a: "Yes — there's a membership fee of ₹3,000, which goes towards keeping the club running and funding components for builds.",
   },
   {
     q: "How can my company sponsor the club?",
-    a: "Placeholder answer — link to the Sponsors page and outline the inquiry process.",
+    a: "We'd love to have you on board. Reach out to us at aerofcrit0@gmail.com, or send us a message through our Contact page, and our team will get back to you with sponsorship details and partnership opportunities.",
   },
   {
     q: "I graduated — how do I stay involved as an alum?",
-    a: "Placeholder answer — point back to the Alumni page and contact details.",
+    a: "Head over to our Alumni page, or reach out to us directly through the Contact page  we'd love to stay in touch.",
   },
 ];
 
