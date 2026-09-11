@@ -11,14 +11,14 @@ import SectionHeader from "../components/SectionHeader.jsx";
 
 const ROSTER = [
   { name: "Yuvraj Nalavde", role: "Garuda Captain", division: "Leadership", team: "Team Garuda" },
-  { name: "Vedang Vaishampayan", role: "Garuda Vice Captain", division: "Avionics", team: "Team Garuda" },
+  { name: "Vedang Vaishampayan", role: "Garuda Vice Captain", division: "Leadership", team: "Team Garuda" },
   { name: "Vinay Desai", role: "Thestral Captain", division: "Leadership", team: "Team Thestral" },
   { name: "Aditya Salgaonkar", role: "Thestral Vice Captain", division: "Leadership", team: "Team Thestral" },
   { name: "Yash Patil", role: "Sponsorship Head", division: "Propulsion", team: "Team Garuda" },
   { name: "Shreyas Chavan", role: "PR Head", division: "Propulsion", team: "Team Thestral" },
   { name: "Rucha Manorkar", role: "Documentation Head", division: "Propulsion", team: "Team Garuda" },
   { name: "Kunal Chaudhari", role: "Avionics Head", division: "Avionics", team: "Team Thestral" },
-  { name: "Siddhee Mhatre", role: "Design Head", division: "Design ", team: "Team Thestral" },
+  { name: "Siddhee Mhatre", role: "Design Head", division: "Design", team: "Team Thestral" },
   { name: "Atharva Thakur", role: "Fabrication Head", division: "Fabrication", team: "Team Garuda" },
   { name: "Sahil Patil", role: "Structural Head", division: "Structural", team: "Team Garuda" },
   { name: "Sanskar Jagdish Gharal", role: "Member", division: "Avionics", team: "Team Thestral" },
@@ -40,7 +40,6 @@ const ROSTER = [
   { name: "Mahi Dhok", role: "Member", division: "Avionics", team: "Team Thestral" },
   {name: "Dhruv Shetty", role: "Member", division: "Design", team: "Team Thestral" },
   {name: "Shubhra Deshpande", role: "Member", division: "Propulsion", team: "Team Thestral" },
-  {name:"Vedant Harjai",role:"Member",division:"Fabrication",team:"Team Garuda"},
   { name: "Samiksha Chakane", role: "Member", division: "Structural", team: "Team Garuda" },
   {name:"Joal Jestin ",role:"Member",division:"Avionics",team:"Team Thestral"},
   {name:"Nikita Dhanaji Dhulugade ",role:"Member",division:"Propulsion",team:"Team Thestral"},
@@ -52,8 +51,8 @@ const ROSTER = [
 
 const MAIN_TABS = [
   { id: "ALL", label: "Entire Team" },
-  { id: "GARUDA", label: "Team Garuda (Planes)" },
-  { id: "THESTRAL", label: "Team Thestral (Drones)" },
+  { id: "GARUDA", label: "Team Garuda" },
+  { id: "THESTRAL", label: "Team Thestral" },
 ];
 
 const TEAM_ID_TO_NAME = {
