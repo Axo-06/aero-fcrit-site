@@ -8,10 +8,6 @@ const CATEGORIES = ["All", "Competitions", "Builds", "Sponsorship", "Events"];
 
 const ITEMS = [
   { title: "Add your latest competition result here", category: "Competitions", date: "Placeholder date" },
-  { title: "New quadcopter frame cleared for test flights", category: "Builds", date: "Placeholder date" },
-  { title: "Placeholder — new sponsor announcement", category: "Sponsorship", date: "Placeholder date" },
-  { title: "Open workshop day announced for new members", category: "Events", date: "Placeholder date" },
-  { title: "Glider Mk.II completes first stable flight", category: "Builds", date: "Placeholder date" },
   { title: "Placeholder — upcoming competition date", category: "Competitions", date: "Placeholder date" },
 ];
 
@@ -24,7 +20,7 @@ export default function News() {
       <SectionHeader
         eyebrow="News Column"
         title="Latest updates"
-        description="Placeholder news items — filter by category, or replace this list with your real feed."
+        description="All the latest news, updates, and announcements from the team."
       />
       <section className="py-16">
         <div className="max-w-[780px] mx-auto px-5 sm:px-7">
