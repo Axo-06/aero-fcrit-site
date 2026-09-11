@@ -70,7 +70,7 @@ export default function ContactForm() {
                 <span className="block font-mono text-[0.7rem] text-brass uppercase tracking-wide mb-1">
                   Address
                 </span>
-                AX-316B, FCRIT Vashi
+                AX-316C, FCRIT Vashi
               </li>
               <li>
                 <span className="block font-mono text-[0.7rem] text-brass uppercase tracking-wide mb-1">
