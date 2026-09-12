@@ -19,28 +19,37 @@ export function playPropellerClick() {
   if (ctx.state === "suspended") ctx.resume();
   const now = ctx.currentTime;
 
-  const bufferSize = ctx.sampleRate * 0.25;
+  // filtered noise "spool"
+  const bufferSize = ctx.sampleRate * 0.18;
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
   for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
   const noise = ctx.createBufferSource();
   noise.buffer = buffer;
-
   const filter = ctx.createBiquadFilter();
   filter.type = "bandpass";
-  filter.Q.value = 1.2;
-  filter.frequency.setValueAtTime(300, now);
-  filter.frequency.exponentialRampToValueAtTime(2000, now + 0.12);
-  filter.frequency.exponentialRampToValueAtTime(200, now + 0.24);
+  filter.Q.value = 4;
+  filter.frequency.setValueAtTime(400, now);
+  filter.frequency.exponentialRampToValueAtTime(1800, now + 0.12);
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.0001, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.06, now + 0.03);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
 
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.15, now + 0.05);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+  // low thump underneath
+  const thump = ctx.createOscillator();
+  const thumpGain = ctx.createGain();
+  thump.type = "sine";
+  thump.frequency.setValueAtTime(90, now);
+  thumpGain.gain.setValueAtTime(0.0001, now);
+  thumpGain.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
+  thumpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
 
-  noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
-  noise.start(now); noise.stop(now + 0.25);
+  noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(ctx.destination);
+  thump.connect(thumpGain); thumpGain.connect(ctx.destination);
+
+  noise.start(now); noise.stop(now + 0.18);
+  thump.start(now); thump.stop(now + 0.1);
 }
 
 export default function useClickSound() {
