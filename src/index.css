@@ -104,3 +104,97 @@ a {
   overflow: hidden;
 }
 
+/* Desktop nav — gooey hover/active indicator (brass blob + cyan sparks) */
+.gooey-indicator {
+  position: absolute;
+  bottom: -1px;
+  height: 36px;
+  border-radius: 6px;
+  pointer-events: none;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease;
+}
+.gooey-indicator-blob {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: radial-gradient(ellipse at center, rgba(206, 158, 82, 0.22), rgba(206, 158, 82, 0.05) 70%, transparent 100%);
+  border-bottom: 2px solid var(--brass);
+}
+.gooey-indicator-particle {
+  position: absolute;
+  bottom: 3px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--linecyan);
+  opacity: 0;
+  animation: gooey-spark 0.6s ease-out;
+}
+.gooey-indicator-particle.p1 {
+  left: 18%;
+  animation-delay: 0ms;
+}
+.gooey-indicator-particle.p2 {
+  left: 48%;
+  animation-delay: 70ms;
+}
+.gooey-indicator-particle.p3 {
+  left: 78%;
+  animation-delay: 140ms;
+}
+@keyframes gooey-spark {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px) scale(1);
+  }
+}
+
+/* Mobile nav — plain sliding indicator bar ("Option C" fallback, no
+   particle effect, lighter for touch) */
+.mobile-nav-indicator {
+  position: absolute;
+  left: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--brass);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), height 0.3s ease, opacity 0.2s ease;
+}
+
+/* Propeller controls: blades sit still, only spin on hover/focus so the
+   motion answers the person's action rather than running continuously */
+.propeller-spin {
+  transform-origin: 50% 50%;
+}
+.group:hover .propeller-spin,
+.group:focus-visible .propeller-spin {
+  animation: propeller-spin 0.6s linear infinite;
+}
+@keyframes propeller-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gooey-indicator,
+  .gooey-indicator-particle,
+  .mobile-nav-indicator,
+  .propeller-spin {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+

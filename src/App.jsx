@@ -15,6 +15,8 @@ import News from "./pages/News.jsx";
 import Alumni from "./pages/Alumni.jsx";
 import Sponsors from "./pages/Sponsors.jsx";
 import FAQ from "./pages/FAQ.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import ScrollToTopButton from "./components/ScrollToTopButton.jsx";
 
 const TICKER_HEADLINES = [
   "Aero FCRIT is heading to Technoxian 2026",
@@ -60,9 +62,11 @@ export default function App() {
             <Route path="/alumni" element={<Alumni />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/contact" element={<ContactForm />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
+        <ScrollToTopButton />
       </div>
     </BrowserRouter>
   );
