@@ -176,7 +176,7 @@ export default function Navbar({ stickyTop = 0 }) {
         <a
           href="https://aerofcritops.vercel.app/"
           onClick={handleNavClick}
-          className="inline-flex items-center gap-2 font-mono text-[0.72rem] 2xl:text-[0.78rem] tracking-wider uppercase font-medium px-4 2xl:px-5 py-[10px] rounded-sm border border-brass text-brass transition-all duration-300 ease-out transform hover:scale-105 hover:bg-brass hover:text-[#171006] active:scale-95"
+          className="inline-flex items-center gap-2 font-mono text-[0.72rem] 2xl:text-[0.78rem] tracking-wider uppercase font-medium px-4 2xl:px-5 py-[10px] rounded-sm border border-signal text-signal transition-all duration-300 ease-out transform hover:scale-105 hover:bg-signal hover:text-[#171006] active:scale-95"
         >
           Member hub
         </a>
@@ -228,7 +228,7 @@ export default function Navbar({ stickyTop = 0 }) {
           <a
             href="https://aerofcritops.vercel.app/"
             onClick={handleNavClick}
-            className="inline-flex items-center justify-center gap-2 font-medium px-5 py-3 rounded-sm border border-brass text-brass mt-2 transition-all duration-300 active:scale-95"
+            className="inline-flex items-center justify-center gap-2 font-medium px-5 py-3 rounded-sm border border-signal text-signal mt-2 transition-all duration-300 active:scale-95"
           >
             Member hub
           </a>

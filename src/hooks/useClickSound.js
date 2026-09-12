@@ -17,26 +17,36 @@ export function playPropellerClick() {
   const ctx = getContext();
   if (!ctx) return;
   if (ctx.state === "suspended") ctx.resume();
-
   const now = ctx.currentTime;
+
+  // noise "click" transient
+  const bufferSize = ctx.sampleRate * 0.02;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = "highpass";
+  noiseFilter.frequency.value = 2500;
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.25, now);
+
+  // confirmation chirp right after
   const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
+  const oscGain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(900, now + 0.02);
+  osc.frequency.exponentialRampToValueAtTime(1400, now + 0.06);
+  oscGain.gain.setValueAtTime(0.0001, now + 0.02);
+  oscGain.gain.exponentialRampToValueAtTime(0.05, now + 0.03);
+  oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
 
-  // Quick descending sweep + fast decay reads as a short prop "thwip"
-  // rather than a generic UI beep.
-  osc.type = "triangle";
-  osc.frequency.setValueAtTime(220, now);
-  osc.frequency.exponentialRampToValueAtTime(70, now + 0.09);
+  noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(ctx.destination);
+  osc.connect(oscGain); oscGain.connect(ctx.destination);
 
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.1, now + 0.008);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
-
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start(now);
-  osc.stop(now + 0.12);
+  noise.start(now); noise.stop(now + 0.02);
+  osc.start(now + 0.02); osc.stop(now + 0.09);
 }
 
 export default function useClickSound() {
