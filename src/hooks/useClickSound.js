@@ -19,34 +19,28 @@ export function playPropellerClick() {
   if (ctx.state === "suspended") ctx.resume();
   const now = ctx.currentTime;
 
-  // noise "click" transient
-  const bufferSize = ctx.sampleRate * 0.02;
+  const bufferSize = ctx.sampleRate * 0.25;
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
   const noise = ctx.createBufferSource();
   noise.buffer = buffer;
-  const noiseFilter = ctx.createBiquadFilter();
-  noiseFilter.type = "highpass";
-  noiseFilter.frequency.value = 2500;
-  const noiseGain = ctx.createGain();
-  noiseGain.gain.setValueAtTime(0.25, now);
 
-  // confirmation chirp right after
-  const osc = ctx.createOscillator();
-  const oscGain = ctx.createGain();
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(900, now + 0.02);
-  osc.frequency.exponentialRampToValueAtTime(1400, now + 0.06);
-  oscGain.gain.setValueAtTime(0.0001, now + 0.02);
-  oscGain.gain.exponentialRampToValueAtTime(0.05, now + 0.03);
-  oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.Q.value = 1.2;
+  filter.frequency.setValueAtTime(300, now);
+  filter.frequency.exponentialRampToValueAtTime(2000, now + 0.12);
+  filter.frequency.exponentialRampToValueAtTime(200, now + 0.24);
 
-  noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(ctx.destination);
-  osc.connect(oscGain); oscGain.connect(ctx.destination);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.15, now + 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
 
-  noise.start(now); noise.stop(now + 0.02);
-  osc.start(now + 0.02); osc.stop(now + 0.09);
+  noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  noise.start(now); noise.stop(now + 0.25);
 }
 
 export default function useClickSound() {
