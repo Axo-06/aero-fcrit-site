@@ -8,6 +8,7 @@
 
 import { useMemo, useState } from "react";
 import SectionHeader from "../components/SectionHeader.jsx";
+import CountUp from "../components/CountUp.jsx";
 
 const RECORDS = [
   {
@@ -183,11 +184,11 @@ function parsePrize(str) {
   return digits ? parseInt(digits, 10) : 0;
 }
 
-function Stat({ label, value }) {
+function Stat({ label, end, format }) {
   return (
     <div className="p-6 sm:p-8 text-left">
       <div className="font-display font-bold text-3xl sm:text-4xl leading-none text-brass tabular-nums">
-        {value}
+        <CountUp end={end} format={format} duration={1200} />
       </div>
       <div className="font-mono text-[0.68rem] sm:text-xs tracking-wider uppercase text-inkdim mt-2">
         {label}
@@ -229,10 +230,15 @@ export default function Achievements() {
 
       <section className="border-y border-ink/10 bg-hangardeep">
         <div className="max-w-[1180px] mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-ink/10">
-          <Stat label="Total Records" value={stats.totalRecords} />
-          <Stat label="Major Victories" value={stats.majorVictories} />
-          <Stat label="Prize Money Won" value={`₹${currency.format(stats.totalPrize)}`} />
-          <Stat label="Years Competing" value={stats.yearsCompeting} />
+          <Stat key={`records-${team}`} label="Total Records" end={stats.totalRecords} />
+          <Stat key={`majors-${team}`} label="Major Victories" end={stats.majorVictories} />
+          <Stat
+            key={`prize-${team}`}
+            label="Prize Money Won"
+            end={stats.totalPrize}
+            format={(v) => `₹${currency.format(v)}`}
+          />
+          <Stat key={`years-${team}`} label="Years Competing" end={stats.yearsCompeting} />
         </div>
       </section>
 

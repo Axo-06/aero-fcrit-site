@@ -1,0 +1,31 @@
+{
+  "name": "Aero FCRIT — Aeromodelling & UAV Design Club",
+  "short_name": "Aero FCRIT",
+  "description": "Aero FCRIT is the aeromodelling and UAV design club at FCRIT — students designing, building, and flight-testing custom drones and aircraft.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c1a17",
+  "theme_color": "#0c1a17",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -198,3 +198,130 @@ a {
   }
 }
 
+/* Easter eggs */
+.konami-plane {
+  offset-path: path("M -10 70 C 20 20, 60 90, 110 20");
+  animation: konami-fly 2.4s cubic-bezier(0.34, 0.02, 0.66, 0.98) forwards;
+}
+@keyframes konami-fly {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.takeoff-banner-text {
+  animation: takeoff-banner-pop 2.6s ease-out forwards;
+  text-shadow: 0 0 24px rgba(206, 158, 82, 0.5);
+}
+@keyframes takeoff-banner-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.takeoff-particle {
+  top: 50%;
+  left: 50%;
+  opacity: 0;
+  animation: takeoff-particle-burst 1.8s ease-out forwards;
+}
+@keyframes takeoff-particle-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg) translateY(0) scale(0.5);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--tp-rot, 0deg)) translateY(-220px) scale(1);
+  }
+}
+.tp-0 { --tp-rot: 0deg; animation-delay: 0ms; }
+.tp-1 { --tp-rot: 45deg; animation-delay: 40ms; }
+.tp-2 { --tp-rot: 90deg; animation-delay: 80ms; }
+.tp-3 { --tp-rot: 135deg; animation-delay: 120ms; }
+.tp-4 { --tp-rot: 180deg; animation-delay: 160ms; }
+.tp-5 { --tp-rot: 225deg; animation-delay: 200ms; }
+.tp-6 { --tp-rot: 270deg; animation-delay: 240ms; }
+.tp-7 { --tp-rot: 315deg; animation-delay: 280ms; }
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-toast-in {
+  animation: toast-in 0.3s ease-out;
+}
+
+/* Keyboard-nav-mode hint badges (Navbar) */
+.kbd-hint {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: var(--signal);
+  color: #171006;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  animation: kbd-hint-pop 0.18s ease-out;
+  pointer-events: none;
+}
+@keyframes kbd-hint-pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .konami-plane,
+  .takeoff-banner-text,
+  .takeoff-particle,
+  .animate-toast-in,
+  .kbd-hint {
+    animation: none !important;
+  }
+}
+
