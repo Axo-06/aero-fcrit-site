@@ -14,6 +14,7 @@
 
 import { useEffect, useState } from "react";
 import { playPropellerClick, playTakeoffChime } from "../hooks/useClickSound.js";
+import FlightSimEasterEgg from "./FlightSimEasterEgg.jsx";
 
 const KONAMI_SEQUENCE = [
   "ArrowUp",
@@ -28,7 +29,8 @@ const KONAMI_SEQUENCE = [
   "a",
 ];
 
-const TAKEOFF_PHRASE = "cleared";
+const TYPED_PHRASES = ["cleared", "game"];
+const MAX_PHRASE_LEN = Math.max(...TYPED_PHRASES.map((p) => p.length));
 
 function isTypingTarget(el) {
   if (!el) return false;
@@ -40,6 +42,11 @@ export default function EasterEggs() {
   const [planeFlyover, setPlaneFlyover] = useState(false);
   const [takeoffBanner, setTakeoffBanner] = useState(false);
   const [toast, setToast] = useState(null);
+  const [gameActive, setGameActive] = useState(false);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("aero:game-active", { detail: gameActive }));
+  }, [gameActive]);
 
   // Konami code + typed phrase listener
   useEffect(() => {
@@ -48,6 +55,7 @@ export default function EasterEggs() {
     let typedResetTimer;
 
     function onKeyDown(e) {
+      if (gameActive) return; // the mini game owns keyboard input while open
       if (isTypingTarget(document.activeElement)) return;
 
       // Konami progress (arrow keys are case-insensitive by nature; b/a are letters)
@@ -65,12 +73,16 @@ export default function EasterEggs() {
 
       // Typed phrase progress (letters only)
       if (/^[a-z]$/i.test(e.key)) {
-        typedBuffer = (typedBuffer + e.key.toLowerCase()).slice(-TAKEOFF_PHRASE.length);
+        typedBuffer = (typedBuffer + e.key.toLowerCase()).slice(-MAX_PHRASE_LEN);
         clearTimeout(typedResetTimer);
         typedResetTimer = setTimeout(() => (typedBuffer = ""), 2000);
-        if (typedBuffer === TAKEOFF_PHRASE) {
+
+        if (typedBuffer.endsWith("cleared")) {
           typedBuffer = "";
           triggerTakeoffBanner();
+        } else if (typedBuffer.endsWith("game")) {
+          typedBuffer = "";
+          setGameActive(true);
         }
       }
     }
@@ -80,7 +92,7 @@ export default function EasterEggs() {
       window.removeEventListener("keydown", onKeyDown);
       clearTimeout(typedResetTimer);
     };
-  }, []);
+  }, [gameActive]);
 
   // Logo triple-click listener (event dispatched from Navbar.jsx)
   useEffect(() => {
@@ -107,6 +119,8 @@ export default function EasterEggs() {
 
   return (
     <>
+      {gameActive && <FlightSimEasterEgg onClose={() => setGameActive(false)} />}
+
       {planeFlyover && (
         <div className="fixed inset-0 z-[999] pointer-events-none overflow-hidden">
           <svg viewBox="0 0 100 100" className="konami-plane w-16 h-16 absolute" fill="none">

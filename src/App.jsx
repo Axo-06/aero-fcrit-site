@@ -18,6 +18,8 @@ import FAQ from "./pages/FAQ.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import ScrollToTopButton from "./components/ScrollToTopButton.jsx";
 import EasterEggs from "./components/EasterEggs.jsx";
+import ContrailCursor from "./components/ContrailCursor.jsx";
+import AltitudeIndicator from "./components/AltitudeIndicator.jsx";
 
 const TICKER_HEADLINES = [
   "Aero FCRIT is heading to Technoxian 2026",
@@ -69,6 +71,8 @@ export default function App() {
         <Footer />
         <ScrollToTopButton />
         <EasterEggs />
+        <ContrailCursor />
+        <AltitudeIndicator />
       </div>
     </BrowserRouter>
   );

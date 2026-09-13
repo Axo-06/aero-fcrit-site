@@ -321,7 +321,7 @@ export default function Achievements() {
                               key={i}
                               className={`space-y-2.5 p-4 rounded-md transition-colors ${
                                 d.isMajorVictory
-                                  ? "border-l-4 border-brass bg-brass/[0.05]"
+                                  ? "turbulence-badge border-l-4 border-brass bg-brass/[0.05]"
                                   : "border-l-2 border-transparent hover:border-brass/30 hover:bg-ink/[0.03]"
                               }`}
                             >
