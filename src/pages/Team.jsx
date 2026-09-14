@@ -1,12 +1,12 @@
 // Team.jsx
 // Reconstructed from the bundle's `C2` component and its `bf` roster
-// dataset — real member names/roles, not placeholder copy. The
-// bundle leans on framer-motion for card layout animation and a pill
-// that slides between filter tabs; this rebuild keeps the same data,
-// filters, search, and profile modal using plain state + CSS
-// transitions instead, since framer-motion isn't a dependency here.
+// dataset — real member names/roles, not placeholder copy. Card grid
+// and filter-tab transitions now run on `motion` (the framer-motion
+// successor, already a project dependency) for the sliding active-tab
+// pill and animated card mount/filter/exit, matching the hangar theme.
 
 import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import SectionHeader from "../components/SectionHeader.jsx";
 
 const ROSTER = [
@@ -192,13 +192,18 @@ export default function Team() {
               <button
                 key={t.id}
                 onClick={() => selectTab(t.id)}
-                className={`px-5 sm:px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                  mainTab === t.id
-                    ? "bg-brass text-[#171006]"
-                    : "text-inkdim hover:text-ink bg-panel border border-ink/10 hover:border-ink/20"
+                className={`relative px-5 sm:px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                  mainTab === t.id ? "text-[#171006]" : "text-inkdim hover:text-ink bg-panel border border-ink/10 hover:border-ink/20"
                 }`}
               >
-                {t.label}
+                {mainTab === t.id && (
+                  <motion.span
+                    layoutId="team-tab-pill"
+                    className="absolute inset-0 rounded-xl bg-brass -z-0"
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">{t.label}</span>
               </button>
             ))}
           </div>
@@ -235,49 +240,65 @@ export default function Team() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
-              {filtered.map((m) => (
-                <button
-                  key={m.name}
-                  onClick={() => setActive(m)}
-                  className="group relative text-left bg-panel rounded-2xl overflow-hidden ring-1 ring-black/25 hover:ring-brass/50 shadow-md hover:shadow-2xl hover:shadow-black/30 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col"
-                >
-                  <div className="relative w-full aspect-[4/5] overflow-hidden">
-                    <Avatar member={m} className="group-hover:scale-[1.06] transition-transform duration-500 ease-out" />
-                    <div className="absolute top-3 left-3 bg-hangardeep/85 backdrop-blur-md px-2.5 py-1 rounded-md font-mono text-[0.62rem] font-bold text-brass">
-                      {m.team}
+            <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+              <AnimatePresence>
+                {filtered.map((m) => (
+                  <motion.button
+                    layout
+                    key={m.name}
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.85 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 26 }}
+                    onClick={() => setActive(m)}
+                    className="group relative text-left bg-panel rounded-2xl overflow-hidden ring-1 ring-black/25 hover:ring-brass/50 shadow-md hover:shadow-2xl hover:shadow-black/30 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col"
+                  >
+                    <div className="relative w-full aspect-[4/5] overflow-hidden">
+                      <Avatar member={m} className="group-hover:scale-[1.06] transition-transform duration-500 ease-out" />
+                      <div className="absolute top-3 left-3 bg-hangardeep/85 backdrop-blur-md px-2.5 py-1 rounded-md font-mono text-[0.62rem] font-bold text-brass">
+                        {m.team}
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out bg-gradient-to-t from-hangardeep via-hangardeep/95 to-transparent pt-10 pb-3 px-4">
+                        <span className="inline-flex items-center gap-1 font-mono text-[0.64rem] uppercase tracking-wider text-brass">
+                          View profile
+                          <svg viewBox="0 0 12 10" className="w-2.5 h-2.5" fill="none">
+                            <path d="M1 5H11M11 5L7 1M11 5L7 9" stroke="currentColor" strokeWidth="1.4" />
+                          </svg>
+                        </span>
+                      </div>
                     </div>
-                    <div className="absolute inset-x-0 bottom-0 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out bg-gradient-to-t from-hangardeep via-hangardeep/95 to-transparent pt-10 pb-3 px-4">
-                      <span className="inline-flex items-center gap-1 font-mono text-[0.64rem] uppercase tracking-wider text-brass">
-                        View profile
-                        <svg viewBox="0 0 12 10" className="w-2.5 h-2.5" fill="none">
-                          <path d="M1 5H11M11 5L7 1M11 5L7 9" stroke="currentColor" strokeWidth="1.4" />
-                        </svg>
-                      </span>
+                    <div className="p-4">
+                      <h3 className="font-display font-bold text-base sm:text-lg text-ink leading-snug">{m.name}</h3>
+                      <p className="font-mono text-[0.7rem] text-linecyan mt-1 font-medium">{m.role}</p>
+                      <div className="mt-3 pt-3 border-t border-ink/10">
+                        <span className="font-mono text-[0.66rem] uppercase tracking-wider text-inkdim">
+                          {m.division}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-display font-bold text-base sm:text-lg text-ink leading-snug">{m.name}</h3>
-                    <p className="font-mono text-[0.7rem] text-linecyan mt-1 font-medium">{m.role}</p>
-                    <div className="mt-3 pt-3 border-t border-ink/10">
-                      <span className="font-mono text-[0.66rem] uppercase tracking-wider text-inkdim">
-                        {m.division}
-                      </span>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+                  </motion.button>
+                ))}
+              </AnimatePresence>
+            </motion.div>
           )}
         </div>
       </section>
 
-      {active && (
-        <div
-          onClick={() => setActive(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-hangardeep/85 backdrop-blur-md overflow-y-auto"
-        >
-          <div
+      <AnimatePresence>
+        {active && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setActive(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-hangardeep/85 backdrop-blur-md overflow-y-auto"
+          >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 12 }}
+            transition={{ type: "spring", stiffness: 320, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-2xl bg-panel rounded-2xl overflow-hidden my-auto text-ink shadow-2xl ring-1 ring-black/30"
           >
@@ -305,9 +326,10 @@ export default function Team() {
                 <p className="font-mono text-sm text-linecyan font-medium mt-1">{active.role}</p>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
