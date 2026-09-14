@@ -4,13 +4,36 @@
 // component, recolored to the site's signal/brass/linecyan palette).
 
 import { Link } from "react-router-dom";
-import { Instagram, Linkedin, Youtube } from "lucide-react";
+import { Linkedin, Youtube } from "lucide-react";
 import { TextHoverEffect, FooterBackgroundGradient } from "./ui/hover-footer.jsx";
 
+// lucide-react dropped brand/social glyphs like Instagram in recent versions
+// (kept only generic icons) — using a small inline SVG here instead so the
+// import doesn't break the build.
+function InstagramIcon({ size = 16 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
 const SOCIAL_LINKS = [
-  { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/aero_fcrit/" },
-  { icon: Linkedin, label: "LinkedIn", href: "https://www.linkedin.com/company/aero-fcrit" },
-  { icon: Youtube, label: "YouTube", href: "https://www.youtube.com/@aerofcrit" },
+  { icon: InstagramIcon, label: "Instagram", href: "https://instagram.com" },
+  { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com" },
+  { icon: Youtube, label: "YouTube", href: "https://youtube.com" },
 ];
 
 export default function Footer() {
