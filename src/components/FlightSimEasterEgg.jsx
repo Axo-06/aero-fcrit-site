@@ -292,7 +292,7 @@ export default function FlightSimEasterEgg({ onClose }) {
           {phase !== "playing" && (
             <div className="absolute inset-0 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-hangardeep/70 text-center px-6">
               {phase === "done" ? (
-                <div className="w-full max-w-[420px] max-h-[80vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4">
+                <div className={specialClipUnlocked ? "w-full max-w-[560px] max-h-[88vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4" : "w-full max-w-[420px] max-h-[80vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4"}>
                   <p className="font-display font-extrabold uppercase text-[clamp(1.3rem,2vw,2rem)] leading-tight text-ink mb-1 break-words">
                     Crashed — score {score}
                   </p>
@@ -301,7 +301,7 @@ export default function FlightSimEasterEgg({ onClose }) {
                   </p>
 
                   {specialClipUnlocked && (
-                    <div className="mb-5 border border-brass/50 rounded-sm bg-hangardeep/70 px-4 py-3 text-left max-w-full">
+                    <div className="mb-5 border border-brass/50 rounded-sm bg-hangardeep/70 px-4 py-3 text-left w-full">
                       <p className="font-display font-extrabold uppercase text-[clamp(1rem,1.8vw,1.4rem)] leading-tight text-ink break-words">
                         Congratulations on Scoring {specialClipScore || SPECIAL_CLIP_TARGET} points
                       </p>
