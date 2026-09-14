@@ -13,7 +13,7 @@ import { cn } from "../../lib/utils";
 // its own <button> or, via asChild, hands off to a single <a>/<Link> child
 // through Slot (which requires exactly one child element).
 const liquidButtonVariants = cva(
-  "liquid-glass relative overflow-hidden inline-flex items-center cursor-pointer justify-center gap-2 whitespace-nowrap font-mono text-[0.72rem] 2xl:text-[0.78rem] tracking-wider uppercase font-medium rounded-sm transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-signal disabled:pointer-events-none disabled:opacity-50 hover:scale-105 active:scale-95",
+  "liquid-glass relative overflow-hidden inline-flex items-center cursor-pointer justify-center gap-2 whitespace-nowrap font-mono text-[0.72rem] 2xl:text-[0.78rem] tracking-wider uppercase font-medium rounded-full transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-signal disabled:pointer-events-none disabled:opacity-50 hover:scale-105 active:scale-95",
   {
     variants: {
       variant: {
