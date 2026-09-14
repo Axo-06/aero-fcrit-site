@@ -14,7 +14,6 @@ import firstFlightVideo from "../assets/Special_Clip.mp4";
 
 const SOUND_KEY = "aero-fcrit-game-sound";
 const SECRET_KEY = "aero-fcrit-game-secret-unlocked";
-const SPECIAL_CLIP_KEY = "aero-fcrit-game-special-clip-unlocked";
 const BEST_KEY = "aero-fcrit-game-best";
 const SPECIAL_CLIP_TARGET = 10;
 
@@ -67,9 +66,7 @@ export default function FlightSimEasterEgg({ onClose }) {
   const [secretUnlocked, setSecretUnlocked] = useState(
     () => localStorage.getItem(SECRET_KEY) === "1"
   );
-  const [specialClipUnlocked, setSpecialClipUnlocked] = useState(
-    () => localStorage.getItem(SPECIAL_CLIP_KEY) === "1"
-  );
+  const [specialClipUnlocked, setSpecialClipUnlocked] = useState(false);
   const [specialClipScore, setSpecialClipScore] = useState(0);
   const [unlockToast, setUnlockToast] = useState(false);
 
@@ -77,8 +74,7 @@ export default function FlightSimEasterEgg({ onClose }) {
   soundOnRef.current = soundOn;
   const secretRef = useRef(secretUnlocked);
   secretRef.current = secretUnlocked;
-  const specialClipUnlockedRef = useRef(specialClipUnlocked);
-  specialClipUnlockedRef.current = specialClipUnlocked;
+  const specialClipUnlockedRef = useRef(false);
 
   function sfxFlap() {
     if (secretRef.current) {
@@ -143,7 +139,6 @@ export default function FlightSimEasterEgg({ onClose }) {
       specialClipUnlockedRef.current = true;
       setSpecialClipUnlocked(true);
       setSpecialClipScore(runScore);
-      localStorage.setItem(SPECIAL_CLIP_KEY, "1");
     }
 
     function onFlap() {
@@ -230,6 +225,9 @@ export default function FlightSimEasterEgg({ onClose }) {
 
   function startGame() {
     ensureAudio();
+    specialClipUnlockedRef.current = false;
+    setSpecialClipUnlocked(false);
+    setSpecialClipScore(0);
     setScore(0);
     setPhase("playing");
   }
@@ -294,7 +292,7 @@ export default function FlightSimEasterEgg({ onClose }) {
           {phase !== "playing" && (
             <div className="absolute inset-0 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-hangardeep/70 text-center px-6">
               {phase === "done" ? (
-                <div className="max-w-[min(420px,calc(100vw-2rem))] max-h-[80vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4">
+                <div className="w-full max-w-[420px] max-h-[80vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4">
                   <p className="font-display font-extrabold uppercase text-[clamp(1.3rem,2vw,2rem)] leading-tight text-ink mb-1 break-words">
                     Crashed — score {score}
                   </p>
@@ -303,7 +301,7 @@ export default function FlightSimEasterEgg({ onClose }) {
                   </p>
 
                   {specialClipUnlocked && (
-                    <div className="mb-5 border border-brass/50 rounded-sm bg-hangardeep/70 px-4 py-3 text-left">
+                    <div className="mb-5 border border-brass/50 rounded-sm bg-hangardeep/70 px-4 py-3 text-left max-w-full">
                       <p className="font-display font-extrabold uppercase text-[clamp(1rem,1.8vw,1.4rem)] leading-tight text-ink break-words">
                         Congratulations on Scoring {specialClipScore || SPECIAL_CLIP_TARGET} points
                       </p>
@@ -312,7 +310,7 @@ export default function FlightSimEasterEgg({ onClose }) {
                       </p>
                       <video
                         src={firstFlightVideo}
-                        className="w-full h-auto mt-3 rounded-sm border border-brass/40"
+                        className="w-full max-w-full h-auto mt-3 rounded-sm border border-brass/40"
                         controls
                         muted
                         playsInline
