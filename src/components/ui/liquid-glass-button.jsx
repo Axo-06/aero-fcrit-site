@@ -36,12 +36,26 @@ function LiquidButton({
   children,
   ...props
 }) {
-  const Comp = asChild ? Slot : "button";
+  // Slot clones its props onto exactly one child element, so when asChild is
+  // used we can't add sibling decoration (glass div, filter svg) alongside
+  // the real <a>/<Link> — that's what threw "expected a single React element
+  // child". Just merge classes onto the child itself in that case.
+  if (asChild) {
+    return (
+      <Slot
+        data-slot="button"
+        className={cn(liquidButtonVariants({ variant, size, className }))}
+        {...props}
+      >
+        {children}
+      </Slot>
+    );
+  }
 
   return (
-    <Comp
+    <button
       data-slot="button"
-      className={cn("group", liquidButtonVariants({ variant, size, className }))}
+      className={cn("group relative", liquidButtonVariants({ variant, size, className }))}
       {...props}
     >
       <div
@@ -50,7 +64,7 @@ function LiquidButton({
       />
       <span className="pointer-events-none">{children}</span>
       <GlassFilter />
-    </Comp>
+    </button>
   );
 }
 
