@@ -10,7 +10,7 @@
 // localStorage, same as the sound preference and the secret unlock below.
 
 import { useEffect, useRef, useState } from "react";
-import firstFlightVideo from "../assets/first_flight.mp4";
+import firstFlightVideo from "../assets/Special_Clip.mp4";
 
 const SOUND_KEY = "aero-fcrit-game-sound";
 const SECRET_KEY = "aero-fcrit-game-secret-unlocked";
@@ -292,10 +292,10 @@ export default function FlightSimEasterEgg({ onClose }) {
           />
 
           {phase !== "playing" && (
-            <div className="absolute inset-0 flex items-center justify-center bg-hangardeep/70 text-center px-6">
+            <div className="absolute inset-0 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-hangardeep/70 text-center px-6">
               {phase === "done" ? (
-                <div>
-                  <p className="font-display font-extrabold uppercase text-2xl text-ink mb-1">
+                <div className="max-w-[min(420px,calc(100vw-2rem))] max-h-[80vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4">
+                  <p className="font-display font-extrabold uppercase text-[clamp(1.3rem,2vw,2rem)] leading-tight text-ink mb-1 break-words">
                     Crashed — score {score}
                   </p>
                   <p className="font-mono text-xs uppercase tracking-wider text-ink/80 mb-5">
@@ -304,10 +304,10 @@ export default function FlightSimEasterEgg({ onClose }) {
 
                   {specialClipUnlocked && (
                     <div className="mb-5 border border-brass/50 rounded-sm bg-hangardeep/70 px-4 py-3 text-left">
-                      <p className="font-display font-extrabold uppercase text-lg text-ink">
+                      <p className="font-display font-extrabold uppercase text-[clamp(1rem,1.8vw,1.4rem)] leading-tight text-ink break-words">
                         Congratulations on Scoring {specialClipScore || SPECIAL_CLIP_TARGET} points
                       </p>
-                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-brass">
+                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-brass break-words">
                         You have unlocked a special clip
                       </p>
                       <video
@@ -317,7 +317,7 @@ export default function FlightSimEasterEgg({ onClose }) {
                         muted
                         playsInline
                       />
-                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-ink/80 mt-2">
+                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-ink/80 mt-2 break-words">
                         A small video clip I&apos;ll upload
                       </p>
                     </div>
