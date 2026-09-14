@@ -4,25 +4,14 @@
 // component, recolored to the site's signal/brass/linecyan palette).
 
 import { Link } from "react-router-dom";
-import { Linkedin, Youtube } from "lucide-react";
 import { TextHoverEffect, FooterBackgroundGradient } from "./ui/hover-footer.jsx";
 
-// lucide-react dropped brand/social glyphs like Instagram in recent versions
-// (kept only generic icons) — using a small inline SVG here instead so the
-// import doesn't break the build.
+// lucide-react v1 removed ALL brand/logo icons (Instagram, LinkedIn, Facebook,
+// GitHub, etc.) for trademark reasons — see https://lucide.dev/guide/version-1.
+// Using plain inline SVGs for these instead, per Lucide's own recommendation.
 function InstagramIcon({ size = 16 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
@@ -30,10 +19,29 @@ function InstagramIcon({ size = 16 }) {
   );
 }
 
+function LinkedinIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect x="2" y="9" width="4" height="12" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
+
+function YoutubeIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z" />
+      <path d="m10 15 5-3-5-3z" />
+    </svg>
+  );
+}
+
 const SOCIAL_LINKS = [
   { icon: InstagramIcon, label: "Instagram", href: "https://instagram.com" },
-  { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com" },
-  { icon: Youtube, label: "YouTube", href: "https://youtube.com" },
+  { icon: LinkedinIcon, label: "LinkedIn", href: "https://linkedin.com" },
+  { icon: YoutubeIcon, label: "YouTube", href: "https://youtube.com" },
 ];
 
 export default function Footer() {
