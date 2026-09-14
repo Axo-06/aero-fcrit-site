@@ -192,7 +192,7 @@ export default function Team() {
               <button
                 key={t.id}
                 onClick={() => selectTab(t.id)}
-                className={`relative px-5 sm:px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                className={`relative px-5 sm:px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-colors duration-200 cursor-pointer ${
                   mainTab === t.id ? "text-[#171006]" : "text-inkdim hover:text-ink bg-panel border border-ink/10 hover:border-ink/20"
                 }`}
               >
@@ -200,7 +200,7 @@ export default function Team() {
                   <motion.span
                     layoutId="team-tab-pill"
                     className="absolute inset-0 rounded-xl bg-brass -z-0"
-                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 26, mass: 0.6 }}
                   />
                 )}
                 <span className="relative z-10">{t.label}</span>
@@ -217,7 +217,7 @@ export default function Team() {
                 <button
                   key={d}
                   onClick={() => setDivision(d)}
-                  className={`px-3.5 py-1.5 rounded-lg font-mono text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`px-3.5 py-1.5 rounded-lg font-mono text-xs font-semibold transition-colors duration-200 cursor-pointer whitespace-nowrap ${
                     division === d
                       ? "bg-linecyan/15 text-linecyan border border-linecyan/40"
                       : "bg-ink/5 hover:bg-ink/10 text-inkdim hover:text-ink border border-transparent"
@@ -230,28 +230,39 @@ export default function Team() {
           )}
 
           {filtered.length === 0 ? (
-            <div className="text-center py-20">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="text-center py-20"
+            >
               <p className="text-inkdim">No one matches “{search}” in this division.</p>
               <button
                 onClick={() => setSearch("")}
-                className="mt-4 font-mono text-xs uppercase tracking-wider text-brass hover:text-ink transition-colors"
+                className="mt-4 font-mono text-xs uppercase tracking-wider text-brass hover:text-ink transition-colors duration-200"
               >
                 Clear search
               </button>
-            </div>
+            </motion.div>
           ) : (
-            <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+            <motion.div layout transition={{ layout: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
               <AnimatePresence>
-                {filtered.map((m) => (
+                {filtered.map((m, i) => (
                   <motion.button
                     layout
                     key={m.name}
-                    initial={{ opacity: 0, scale: 0.85 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.85 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 26 }}
+                    initial={{ opacity: 0, y: 14, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18, ease: "easeIn" } }}
+                    transition={{
+                      opacity: { duration: 0.35, delay: Math.min(i, 12) * 0.03, ease: [0.16, 1, 0.3, 1] },
+                      y: { duration: 0.4, delay: Math.min(i, 12) * 0.03, ease: [0.16, 1, 0.3, 1] },
+                      scale: { duration: 0.4, delay: Math.min(i, 12) * 0.03, ease: [0.16, 1, 0.3, 1] },
+                      layout: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                    }}
+                    whileHover={{ y: -6 }}
                     onClick={() => setActive(m)}
-                    className="group relative text-left bg-panel rounded-2xl overflow-hidden ring-1 ring-black/25 hover:ring-brass/50 shadow-md hover:shadow-2xl hover:shadow-black/30 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col"
+                    className="group relative text-left bg-panel rounded-2xl overflow-hidden ring-1 ring-black/25 hover:ring-brass/50 shadow-md hover:shadow-2xl hover:shadow-black/30 transition-shadow duration-300 cursor-pointer flex flex-col"
                   >
                     <div className="relative w-full aspect-[4/5] overflow-hidden">
                       <Avatar member={m} className="group-hover:scale-[1.06] transition-transform duration-500 ease-out" />
@@ -290,22 +301,22 @@ export default function Team() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             onClick={() => setActive(null)}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-hangardeep/85 backdrop-blur-md overflow-y-auto"
           >
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 12 }}
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 12 }}
-            transition={{ type: "spring", stiffness: 320, damping: 28 }}
+            exit={{ opacity: 0, scale: 0.96, y: 10, transition: { duration: 0.18, ease: "easeIn" } }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-2xl bg-panel rounded-2xl overflow-hidden my-auto text-ink shadow-2xl ring-1 ring-black/30"
           >
             <button
               onClick={() => setActive(null)}
               aria-label="Close profile"
-              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-hangardeep/70 hover:bg-hangardeep text-inkdim hover:text-ink flex items-center justify-center transition-colors"
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-hangardeep/70 hover:bg-hangardeep text-inkdim hover:text-ink flex items-center justify-center transition-colors duration-200"
             >
               ✕
             </button>
@@ -313,7 +324,12 @@ export default function Team() {
               <div className="relative md:col-span-2 aspect-[4/5] md:aspect-auto">
                 <Avatar member={active} />
               </div>
-              <div className="md:col-span-3 p-6 sm:p-8 flex flex-col justify-center">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+                className="md:col-span-3 p-6 sm:p-8 flex flex-col justify-center"
+              >
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <span className="font-mono text-[0.66rem] font-bold text-brass bg-brass/10 px-2.5 py-1 rounded uppercase tracking-wider">
                     {active.team}
@@ -324,7 +340,7 @@ export default function Team() {
                 </div>
                 <h3 className="font-display font-extrabold text-2xl sm:text-3xl leading-tight">{active.name}</h3>
                 <p className="font-mono text-sm text-linecyan font-medium mt-1">{active.role}</p>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
           </motion.div>
