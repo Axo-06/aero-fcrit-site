@@ -11,6 +11,7 @@ import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import logoSrc from "../assets/logo.png";
 import AnimatedContent from "./AnimatedContent.jsx";
 import { playPropellerClick } from "../hooks/useClickSound.js";
+import { LiquidButton } from "./ui/liquid-glass-button.jsx";
 
 const ALL_LINKS = [
   { to: "/about", label: "About", key: "a" },
@@ -252,20 +253,16 @@ export default function Navbar({ stickyTop = 0 }) {
       )}
 
       <div className="hidden xl:flex items-center gap-3 shrink-0">
-        <a
-          href="https://aerofcritops.vercel.app/"
-          onClick={handleNavClick}
-          className="inline-flex items-center gap-2 font-mono text-[0.72rem] 2xl:text-[0.78rem] tracking-wider uppercase font-medium px-4 2xl:px-5 py-[10px] rounded-sm border border-signal text-signal transition-all duration-300 ease-out transform hover:scale-105 hover:bg-signal hover:text-[#171006] active:scale-95"
-        >
-          Member hub
-        </a>
-        <Link
-          to="/contact"
-          onClick={handleNavClick}
-          className="inline-flex items-center gap-2 font-mono text-[0.72rem] 2xl:text-[0.78rem] tracking-wider uppercase font-medium px-4 2xl:px-5 py-[10px] rounded-sm bg-signal text-[#171006] transition-all duration-300 ease-out transform hover:scale-105 active:scale-95"
-        >
-          Join the squadron
-        </Link>
+        <LiquidButton asChild variant="outline">
+          <a href="https://aerofcritops.vercel.app/" onClick={handleNavClick}>
+            Member hub
+          </a>
+        </LiquidButton>
+        <LiquidButton asChild variant="filled">
+          <Link to="/contact" onClick={handleNavClick}>
+            Join the squadron
+          </Link>
+        </LiquidButton>
       </div>
 
       {/* Mobile toggle */}
@@ -304,20 +301,16 @@ export default function Navbar({ stickyTop = 0 }) {
             ))}
           </div>
           <div className="h-px bg-ink/10 my-2" />
-          <a
-            href="https://aerofcritops.vercel.app/"
-            onClick={handleNavClick}
-            className="inline-flex items-center justify-center gap-2 font-medium px-5 py-3 rounded-sm border border-signal text-signal mt-2 transition-all duration-300 active:scale-95"
-          >
-            Member hub
-          </a>
-          <Link
-            to="/contact"
-            onClick={handleNavClick}
-            className="inline-flex items-center justify-center gap-2 font-medium px-5 py-3 rounded-sm bg-signal text-[#171006] transition-all duration-300 active:scale-95"
-          >
-            Join the squadron
-          </Link>
+          <LiquidButton asChild variant="outline" size="mobile" className="mt-2">
+            <a href="https://aerofcritops.vercel.app/" onClick={handleNavClick}>
+              Member hub
+            </a>
+          </LiquidButton>
+          <LiquidButton asChild variant="filled" size="mobile">
+            <Link to="/contact" onClick={handleNavClick}>
+              Join the squadron
+            </Link>
+          </LiquidButton>
         </div>
       )}
     </header>
