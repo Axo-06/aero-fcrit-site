@@ -15,7 +15,7 @@ const QUESTIONS = [
   },
   {
     q: "How much time does the club expect per week?",
-    a: "    ",
+    a: "The club expects a commitment of 8-10 hours per week, but this can vary depending on the upcoming competitions and deadlines.",
   },
   {
     q: "Is there a membership fee?",
