@@ -10,7 +10,7 @@
 // localStorage, same as the sound preference and the secret unlock below.
 
 import { useEffect, useRef, useState } from "react";
-import firstFlightVideo from "../assets/Special_Clip.mp4";
+import specialClipVideo from "../assets/Special_Clip.mp4";
 
 const SOUND_KEY = "aero-fcrit-game-sound";
 const SECRET_KEY = "aero-fcrit-game-secret-unlocked";
@@ -309,15 +309,12 @@ export default function FlightSimEasterEgg({ onClose }) {
                         You have unlocked a special clip
                       </p>
                       <video
-                        src={firstFlightVideo}
+                        src={specialClipVideo}
                         className="w-full max-w-full h-auto mt-3 rounded-sm border border-brass/40"
                         controls
                         muted
                         playsInline
                       />
-                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-ink/80 mt-2 break-words">
-                        A small video clip I&apos;ll upload
-                      </p>
                     </div>
                   )}
 
