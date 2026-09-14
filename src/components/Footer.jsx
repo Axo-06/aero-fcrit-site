@@ -4,7 +4,7 @@
 // component, recolored to the site's signal/brass/linecyan palette).
 
 import { Link } from "react-router-dom";
-import { TextHoverEffect, FooterBackgroundGradient } from "./ui/hover-footer.jsx";
+import { TextHoverEffect } from "./ui/hover-footer.jsx";
 
 // lucide-react v1 removed ALL brand/logo icons (Instagram, LinkedIn, Facebook,
 // GitHub, etc.) for trademark reasons — see https://lucide.dev/guide/version-1.
@@ -39,16 +39,14 @@ function YoutubeIcon({ size = 16 }) {
 }
 
 const SOCIAL_LINKS = [
-  { icon: InstagramIcon, label: "Instagram", href: "https://instagram.com" },
-  { icon: LinkedinIcon, label: "LinkedIn", href: "https://linkedin.com" },
-  { icon: YoutubeIcon, label: "YouTube", href: "https://youtube.com" },
+  { icon: InstagramIcon, label: "Instagram", href: "https://www.instagram.com/aero_fcrit/" },
+  { icon: LinkedinIcon, label: "LinkedIn", href: "https://www.linkedin.com/company/aero-fcrit" },
+  { icon: YoutubeIcon, label: "YouTube", href: "https://www.youtube.com/@aerofcrit" },
 ];
 
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden bg-hangardeep">
-      <FooterBackgroundGradient />
-
       <div className="relative z-10 pt-14 pb-10 max-w-[1180px] mx-auto px-5 sm:px-7 flex justify-between items-start flex-wrap gap-7">
         <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg">
           AERO <span className="text-brass">FCRIT</span>
@@ -122,15 +120,17 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-[1180px] mx-auto px-5 sm:px-7 mt-10 pt-6 border-t border-ink/10 text-xs text-inkdim">
-        © {new Date().getFullYear()} Aero FCRIT — Father Conceicao Rodrigues Institute of Technology.
-      </div>
-
-      {/* Large hover-reveal wordmark, hidden on small screens like the source component */}
-      <div className="relative z-10 lg:flex hidden h-[22rem] -mt-16 -mb-16 pointer-events-none">
+      {/* Large hover-reveal wordmark, moved above the copyright line and
+          bottom border so it sits inside the footer's main content instead
+          of trailing below it. */}
+      <div className="relative z-10 lg:flex hidden h-[16rem] -mb-6 pointer-events-none">
         <div className="pointer-events-auto w-full h-full">
           <TextHoverEffect text="Aero" duration={0.3} />
         </div>
+      </div>
+
+      <div className="relative z-10 max-w-[1180px] mx-auto px-5 sm:px-7 mt-4 pt-6 border-t border-ink/10 text-xs text-inkdim pb-10">
+        © {new Date().getFullYear()} Aero FCRIT — Father Conceicao Rodrigues Institute of Technology.
       </div>
     </footer>
   );
