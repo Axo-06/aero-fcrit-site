@@ -92,7 +92,8 @@ export default function FlightSimEasterEgg({ onClose }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    drawBackground(ctx);
+    const bgCache = buildBackgroundCache();
+    drawBackground(ctx, bgCache);
     drawPlane(ctx, { y: GAME_H / 2, vy: 0 }, secretUnlocked);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -102,6 +103,7 @@ export default function FlightSimEasterEgg({ onClose }) {
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
+    const bgCache = buildBackgroundCache();
 
     const plane = { y: GAME_H / 2, vy: 0 };
     let obstacles = [];
@@ -181,7 +183,7 @@ export default function FlightSimEasterEgg({ onClose }) {
         if (withinX && hitsGap) crashed = true;
       });
 
-      drawBackground(ctx);
+      drawBackground(ctx, bgCache);
       drawObstacles(ctx, obstacles);
       drawPlane(ctx, plane, secretRef.current);
       drawHud(ctx, runScore);
@@ -236,7 +238,7 @@ export default function FlightSimEasterEgg({ onClose }) {
   }, [phase, onClose]);
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-hangardeep/90 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-hangardeep/95 px-4">
       <div className="relative w-full max-w-[640px]">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-display font-extrabold uppercase text-xl text-ink">
@@ -324,23 +326,30 @@ export default function FlightSimEasterEgg({ onClose }) {
 
 // ---- Canvas drawing helpers (site blueprint palette) ----
 
-function drawBackground(ctx) {
-  ctx.fillStyle = "#0c1a17"; // hangardeep
-  ctx.fillRect(0, 0, GAME_W, GAME_H);
-  ctx.strokeStyle = "rgba(127,200,190,0.12)"; // linecyan, faint
-  ctx.lineWidth = 1;
+function drawBackground(ctx, bgCache) {
+  ctx.drawImage(bgCache, 0, 0);
+}
+
+function buildBackgroundCache() {
+  const bg = document.createElement("canvas");
+  bg.width = GAME_W;
+  bg.height = GAME_H;
+  const bctx = bg.getContext("2d");
+  bctx.fillStyle = "#0c1a17"; // hangardeep
+  bctx.fillRect(0, 0, GAME_W, GAME_H);
+  bctx.strokeStyle = "rgba(127,200,190,0.12)"; // linecyan, faint
+  bctx.lineWidth = 1;
+  bctx.beginPath();
   for (let gx = 0; gx < GAME_W; gx += 28) {
-    ctx.beginPath();
-    ctx.moveTo(gx, 0);
-    ctx.lineTo(gx, GAME_H);
-    ctx.stroke();
+    bctx.moveTo(gx, 0);
+    bctx.lineTo(gx, GAME_H);
   }
   for (let gy = 0; gy < GAME_H; gy += 28) {
-    ctx.beginPath();
-    ctx.moveTo(0, gy);
-    ctx.lineTo(GAME_W, gy);
-    ctx.stroke();
+    bctx.moveTo(0, gy);
+    bctx.lineTo(GAME_W, gy);
   }
+  bctx.stroke();
+  return bg;
 }
 
 function drawObstacles(ctx, obstacles) {
@@ -361,19 +370,22 @@ function drawPlane(ctx, plane, secretUnlocked) {
   const angle = Math.max(-0.5, Math.min(0.9, plane.vy / 12));
   ctx.rotate(angle);
 
+  // Golden plane always — the secret unlock adds a brighter highlight and
+  // a small sparkle rather than swapping the whole color scheme.
   const bodyGrad = ctx.createLinearGradient(-PLANE_R, 0, PLANE_R + 8, 0);
   if (secretUnlocked) {
-    bodyGrad.addColorStop(0, "#a97a2e");
-    bodyGrad.addColorStop(0.5, "#ffdd8a");
-    bodyGrad.addColorStop(1, "#ce9e52"); // brass
+    bodyGrad.addColorStop(0, "#a9791f");
+    bodyGrad.addColorStop(0.5, "#ffe9a8");
+    bodyGrad.addColorStop(1, "#ffcf5c");
   } else {
-    bodyGrad.addColorStop(0, "#a5461f");
-    bodyGrad.addColorStop(0.5, "#f2733f");
-    bodyGrad.addColorStop(1, "#e2572b"); // signal
+    bodyGrad.addColorStop(0, "#8a6423");
+    bodyGrad.addColorStop(0.5, "#e8bf6f");
+    bodyGrad.addColorStop(1, "#ce9e52"); // brass
   }
+  const finColor = secretUnlocked ? "#ffcf5c" : "#ce9e52";
 
   // Rear stabilizer fin
-  ctx.fillStyle = secretUnlocked ? "#ce9e52" : "#e2572b";
+  ctx.fillStyle = finColor;
   ctx.beginPath();
   ctx.moveTo(-PLANE_R * 0.6, -PLANE_R * 0.15);
   ctx.lineTo(-PLANE_R * 1.15, -PLANE_R * 0.95);
@@ -408,6 +420,14 @@ function drawPlane(ctx, plane, secretUnlocked) {
   ctx.beginPath();
   ctx.ellipse(PLANE_R * 0.15, -PLANE_R * 0.08, PLANE_R * 0.32, PLANE_R * 0.22, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  if (secretUnlocked) {
+    // Small sparkle to distinguish the unlocked skin from the base gold.
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.beginPath();
+    ctx.arc(PLANE_R * 0.6, -PLANE_R * 0.35, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   ctx.restore();
 }
