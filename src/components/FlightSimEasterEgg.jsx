@@ -343,8 +343,8 @@ export default function FlightSimEasterEgg({ onClose }) {
                         <video
                           ref={videoRef}
                           src={specialClipVideo}
-                          className="block rounded-sm border border-brass/40"
-                          style={{ width: "100%", height: "auto", objectFit: "contain", maxHeight: "70vh" }}
+                          className="block w-full rounded-sm border border-brass/40"
+                          style={{ aspectRatio: "16 / 9", objectFit: "contain", maxHeight: "70vh" }}
                           controls
                           autoPlay
                           playsInline
