@@ -71,7 +71,9 @@ export const TextHoverEffect = ({ text, duration, className }) => {
         {text}
       </text>
 
-      {/* Outline draw-in stroke recolored to brass (was #3ca2fa blue) */}
+      {/* Outline draw-in stroke recolored to brass (was #3ca2fa blue), with a
+          soft glow via drop-shadow so it reads clearly as a watermark behind
+          the footer content instead of a flat, sharp line. */}
       <motion.text
         x="50%"
         y="50%"
@@ -79,6 +81,7 @@ export const TextHoverEffect = ({ text, duration, className }) => {
         dominantBaseline="middle"
         strokeWidth="0.3"
         className="fill-transparent stroke-brass font-display text-7xl font-bold"
+        style={{ filter: "drop-shadow(0 0 6px rgba(206,158,82,0.55)) drop-shadow(0 0 16px rgba(206,158,82,0.3))" }}
         initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
         animate={{ strokeDashoffset: 0, strokeDasharray: 1000 }}
         transition={{ duration: 4, ease: "easeInOut" }}

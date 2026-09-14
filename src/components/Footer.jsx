@@ -47,6 +47,15 @@ const SOCIAL_LINKS = [
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden bg-hangardeep">
+      {/* Wordmark sits behind everything else as a background layer, filling
+          the full footer so it reads as a watermark under the nav columns
+          and copyright line, rather than as its own stacked section. */}
+      <div className="absolute inset-0 z-0 lg:flex hidden items-center justify-center pointer-events-none">
+        <div className="w-full h-full max-h-[26rem] pointer-events-auto">
+          <TextHoverEffect text="Aero" duration={0.3} />
+        </div>
+      </div>
+
       <div className="relative z-10 pt-14 pb-10 max-w-[1180px] mx-auto px-5 sm:px-7 flex justify-between items-start flex-wrap gap-7">
         <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg">
           AERO <span className="text-brass">FCRIT</span>
@@ -120,16 +129,7 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Large hover-reveal wordmark, moved above the copyright line and
-          bottom border so it sits inside the footer's main content instead
-          of trailing below it. */}
-      <div className="relative z-10 lg:flex hidden h-[16rem] -mb-6 pointer-events-none">
-        <div className="pointer-events-auto w-full h-full">
-          <TextHoverEffect text="Aero" duration={0.3} />
-        </div>
-      </div>
-
-      <div className="relative z-10 max-w-[1180px] mx-auto px-5 sm:px-7 mt-4 pt-6 border-t border-ink/10 text-xs text-inkdim pb-10">
+      <div className="relative z-10 max-w-[1180px] mx-auto px-5 sm:px-7 mt-32 pt-6 border-t border-ink/10 text-xs text-inkdim pb-10">
         © {new Date().getFullYear()} Aero FCRIT — Father Conceicao Rodrigues Institute of Technology.
       </div>
     </footer>
