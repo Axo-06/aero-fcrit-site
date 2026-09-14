@@ -10,10 +10,13 @@
 // localStorage, same as the sound preference and the secret unlock below.
 
 import { useEffect, useRef, useState } from "react";
+import firstFlightVideo from "../assets/first_flight.mp4";
 
 const SOUND_KEY = "aero-fcrit-game-sound";
 const SECRET_KEY = "aero-fcrit-game-secret-unlocked";
+const SPECIAL_CLIP_KEY = "aero-fcrit-game-special-clip-unlocked";
 const BEST_KEY = "aero-fcrit-game-best";
+const SPECIAL_CLIP_TARGET = 10;
 
 // Rare unlock: a 1-in-50 shot at each 10-point milestone gives an alternate
 // flap sound + a gold plane skin, permanently, for this browser.
@@ -64,12 +67,18 @@ export default function FlightSimEasterEgg({ onClose }) {
   const [secretUnlocked, setSecretUnlocked] = useState(
     () => localStorage.getItem(SECRET_KEY) === "1"
   );
+  const [specialClipUnlocked, setSpecialClipUnlocked] = useState(
+    () => localStorage.getItem(SPECIAL_CLIP_KEY) === "1"
+  );
+  const [specialClipScore, setSpecialClipScore] = useState(0);
   const [unlockToast, setUnlockToast] = useState(false);
 
   const soundOnRef = useRef(soundOn);
   soundOnRef.current = soundOn;
   const secretRef = useRef(secretUnlocked);
   secretRef.current = secretUnlocked;
+  const specialClipUnlockedRef = useRef(specialClipUnlocked);
+  specialClipUnlockedRef.current = specialClipUnlocked;
 
   function sfxFlap() {
     if (secretRef.current) {
@@ -127,6 +136,16 @@ export default function FlightSimEasterEgg({ onClose }) {
       }
     }
 
+    function maybeTriggerSpecialClip(runScore) {
+      if (specialClipUnlockedRef.current) return;
+      if (runScore < SPECIAL_CLIP_TARGET) return;
+
+      specialClipUnlockedRef.current = true;
+      setSpecialClipUnlocked(true);
+      setSpecialClipScore(runScore);
+      localStorage.setItem(SPECIAL_CLIP_KEY, "1");
+    }
+
     function onFlap() {
       if (done) return;
       plane.vy = FLAP;
@@ -177,6 +196,7 @@ export default function FlightSimEasterEgg({ onClose }) {
           setScore(runScore);
           sfxScore();
           maybeTriggerEasterEgg();
+          maybeTriggerSpecialClip(runScore);
         }
         const withinX = PLANE_X + PLANE_R > o.x && PLANE_X - PLANE_R < o.x + PIPE_W;
         const hitsGap = plane.y - PLANE_R < o.gapY || plane.y + PLANE_R > o.gapY + PIPE_GAP;
@@ -281,6 +301,28 @@ export default function FlightSimEasterEgg({ onClose }) {
                   <p className="font-mono text-xs uppercase tracking-wider text-ink/80 mb-5">
                     Best: {best}
                   </p>
+
+                  {specialClipUnlocked && (
+                    <div className="mb-5 border border-brass/50 rounded-sm bg-hangardeep/70 px-4 py-3 text-left">
+                      <p className="font-display font-extrabold uppercase text-lg text-ink">
+                        Congratulations on Scoring {specialClipScore || SPECIAL_CLIP_TARGET} points
+                      </p>
+                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-brass">
+                        You have unlocked a special clip
+                      </p>
+                      <video
+                        src={firstFlightVideo}
+                        className="w-full h-auto mt-3 rounded-sm border border-brass/40"
+                        controls
+                        muted
+                        playsInline
+                      />
+                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-ink/80 mt-2">
+                        A small video clip I&apos;ll upload
+                      </p>
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={startGame}
