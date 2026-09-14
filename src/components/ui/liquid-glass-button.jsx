@@ -8,13 +8,17 @@ import { cn } from "../../lib/utils";
 
 // Variants mapped to this site's existing signal / hangardeep / ink palette
 // instead of shadcn's --primary/--ring CSS variables, which this repo doesn't define.
+// The glass ripple is applied via a `::before` pseudo-element (see GlassStyles
+// below) rather than a sibling <div>, so it works whether LiquidButton renders
+// its own <button> or, via asChild, hands off to a single <a>/<Link> child
+// through Slot (which requires exactly one child element).
 const liquidButtonVariants = cva(
-  "relative inline-flex items-center cursor-pointer justify-center gap-2 whitespace-nowrap font-mono text-[0.72rem] 2xl:text-[0.78rem] tracking-wider uppercase font-medium rounded-sm transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-signal disabled:pointer-events-none disabled:opacity-50 active:scale-95",
+  "liquid-glass relative overflow-hidden inline-flex items-center cursor-pointer justify-center gap-2 whitespace-nowrap font-mono text-[0.72rem] 2xl:text-[0.78rem] tracking-wider uppercase font-medium rounded-sm transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-signal disabled:pointer-events-none disabled:opacity-50 hover:scale-105 active:scale-95",
   {
     variants: {
       variant: {
-        filled: "bg-signal text-[#171006] hover:scale-105",
-        outline: "border border-signal text-signal hover:scale-105 hover:bg-signal hover:text-[#171006]",
+        filled: "bg-signal text-[#171006]",
+        outline: "border border-signal text-signal hover:bg-signal hover:text-[#171006]",
       },
       size: {
         default: "px-4 2xl:px-5 py-[10px]",
@@ -36,35 +40,48 @@ function LiquidButton({
   children,
   ...props
 }) {
-  // Slot clones its props onto exactly one child element, so when asChild is
-  // used we can't add sibling decoration (glass div, filter svg) alongside
-  // the real <a>/<Link> — that's what threw "expected a single React element
-  // child". Just merge classes onto the child itself in that case.
-  if (asChild) {
-    return (
-      <Slot
+  const Comp = asChild ? Slot : "button";
+
+  return (
+    <>
+      <Comp
         data-slot="button"
         className={cn(liquidButtonVariants({ variant, size, className }))}
         {...props}
       >
         {children}
-      </Slot>
-    );
-  }
+      </Comp>
+      <GlassStyles />
+    </>
+  );
+}
 
+// Renders once per LiquidButton instance, but the <style> content is identical
+// and the browser dedupes/ignores the redundant rules cheaply. If you use many
+// LiquidButtons on one page and want to be tidy, hoist a single <GlassStyles />
+// to a layout root instead and drop it from here.
+function GlassStyles() {
   return (
-    <button
-      data-slot="button"
-      className={cn("group relative", liquidButtonVariants({ variant, size, className }))}
-      {...props}
-    >
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 rounded-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ backdropFilter: 'url("#liquid-glass-filter")' }}
-      />
-      <span className="pointer-events-none">{children}</span>
+    <>
+      <style>{`
+        .liquid-glass::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          border-radius: inherit;
+          opacity: 0;
+          backdrop-filter: url(#liquid-glass-filter);
+          -webkit-backdrop-filter: url(#liquid-glass-filter);
+          transition: opacity 300ms ease-out;
+          pointer-events: none;
+        }
+        .liquid-glass:hover::before {
+          opacity: 1;
+        }
+      `}</style>
       <GlassFilter />
-    </button>
+    </>
   );
 }
 
