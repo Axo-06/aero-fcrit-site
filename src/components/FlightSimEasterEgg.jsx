@@ -33,6 +33,10 @@ const SPAWN_EVERY = 95;
 const PLANE_X = 90;
 const PLANE_R = 12;
 
+// Fallback aspect ratio (width / height) used before the video's real
+// metadata has loaded, so the container doesn't jump/pop once we know it.
+const DEFAULT_VIDEO_ASPECT = 16 / 9;
+
 let audioCtx = null;
 function ensureAudio() {
   if (!audioCtx) {
@@ -59,6 +63,7 @@ function beep(soundOn, freq, duration, type = "sine", gainStart = 0.15) {
 
 export default function FlightSimEasterEgg({ onClose }) {
   const canvasRef = useRef(null);
+  const videoRef = useRef(null);
   const [phase, setPhase] = useState("ready"); // "ready" | "playing" | "done"
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(() => Number(localStorage.getItem(BEST_KEY) ?? 0));
@@ -69,6 +74,13 @@ export default function FlightSimEasterEgg({ onClose }) {
   const [specialClipUnlocked, setSpecialClipUnlocked] = useState(false);
   const [specialClipScore, setSpecialClipScore] = useState(0);
   const [unlockToast, setUnlockToast] = useState(false);
+
+  // Video reveal + native aspect-ratio state. The clip stays hidden behind
+  // a "Play video" button until clicked; the wrapper is sized to the
+  // video's own width/height (once known) so the whole frame is visible
+  // with no cropping and no letterboxed guesswork.
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoAspect, setVideoAspect] = useState(DEFAULT_VIDEO_ASPECT);
 
   const soundOnRef = useRef(soundOn);
   soundOnRef.current = soundOn;
@@ -90,6 +102,21 @@ export default function FlightSimEasterEgg({ onClose }) {
   }
   function sfxCrash() {
     beep(soundOnRef.current, 140, 0.4, "sawtooth", 0.16);
+  }
+
+  function handleVideoLoadedMetadata(e) {
+    const { videoWidth, videoHeight } = e.currentTarget;
+    if (videoWidth && videoHeight) {
+      setVideoAspect(videoWidth / videoHeight);
+    }
+  }
+
+  function handlePlayClip() {
+    setVideoPlaying(true);
+    // Play on next tick, after the <video> (with controls) is in the DOM.
+    requestAnimationFrame(() => {
+      videoRef.current?.play().catch(() => {});
+    });
   }
 
   // Draw an idle blueprint frame before the first game starts.
@@ -228,6 +255,7 @@ export default function FlightSimEasterEgg({ onClose }) {
     specialClipUnlockedRef.current = false;
     setSpecialClipUnlocked(false);
     setSpecialClipScore(0);
+    setVideoPlaying(false);
     setScore(0);
     setPhase("playing");
   }
@@ -292,7 +320,13 @@ export default function FlightSimEasterEgg({ onClose }) {
           {phase !== "playing" && (
             <div className="absolute inset-0 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-hangardeep/70 text-center px-6">
               {phase === "done" ? (
-                <div className={specialClipUnlocked ? "w-full max-w-[560px] max-h-[88vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4" : "w-full max-w-[420px] max-h-[80vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4"}>
+                <div
+                  className={
+                    specialClipUnlocked
+                      ? "w-full max-w-[560px] max-h-[88vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4"
+                      : "w-full max-w-[420px] max-h-[80vh] overflow-y-auto rounded-sm border border-brass/40 bg-hangardeep/90 px-4 py-4"
+                  }
+                >
                   <p className="font-display font-extrabold uppercase text-[clamp(1.3rem,2vw,2rem)] leading-tight text-ink mb-1 break-words">
                     Crashed — score {score}
                   </p>
@@ -303,18 +337,61 @@ export default function FlightSimEasterEgg({ onClose }) {
                   {specialClipUnlocked && (
                     <div className="mb-5 border border-brass/50 rounded-sm bg-hangardeep/70 px-4 py-3 text-left w-full">
                       <p className="font-display font-extrabold uppercase text-[clamp(1rem,1.8vw,1.4rem)] leading-tight text-ink break-words">
-                        Congratulations on Scoring {specialClipScore || SPECIAL_CLIP_TARGET} points
+                        Congratulations You have unlocked a special clip
                       </p>
-                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-brass break-words">
-                        You have unlocked a special clip
+                      <p className="font-mono text-[0.72rem] uppercase tracking-wider text-brass break-words mb-3">
+                        Scored {specialClipScore || SPECIAL_CLIP_TARGET} points
                       </p>
-                      <video
-                        src={specialClipVideo}
-                        className="w-full max-w-full h-auto mt-3 rounded-sm border border-brass/40"
-                        controls
-                        muted
-                        playsInline
-                      />
+
+                      {/* Wrapper is sized to the video's own aspect ratio
+                          (falls back to 16:9 until metadata loads), so the
+                          full frame is always visible with no cropping. */}
+                      <div
+                        className="relative w-full mt-1 rounded-sm border border-brass/40 bg-black overflow-hidden"
+                        style={{ aspectRatio: videoAspect }}
+                      >
+                        {!videoPlaying ? (
+                          <>
+                            {/* Hidden video used purely to read metadata
+                                (duration/dimensions) so the container can
+                                already be the right shape before playback
+                                starts. preload="metadata" keeps this cheap. */}
+                            <video
+                              src={specialClipVideo}
+                              className="absolute inset-0 w-full h-full object-contain opacity-0 pointer-events-none"
+                              preload="metadata"
+                              muted
+                              onLoadedMetadata={handleVideoLoadedMetadata}
+                            />
+                            <button
+                              type="button"
+                              onClick={handlePlayClip}
+                              aria-label="Play special clip"
+                              className="absolute inset-0 flex items-center justify-center bg-hangardeep/50 hover:bg-hangardeep/40 transition-colors group"
+                            >
+                              <span className="flex items-center justify-center w-14 h-14 rounded-full bg-signal text-[#171006] group-hover:bg-orange-400 transition-colors shadow-lg">
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  className="w-6 h-6 translate-x-[1px]"
+                                  fill="currentColor"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </span>
+                            </button>
+                          </>
+                        ) : (
+                          <video
+                            ref={videoRef}
+                            src={specialClipVideo}
+                            className="absolute inset-0 w-full h-full object-contain"
+                            controls
+                            playsInline
+                            onLoadedMetadata={handleVideoLoadedMetadata}
+                          />
+                        )}
+                      </div>
                     </div>
                   )}
 
