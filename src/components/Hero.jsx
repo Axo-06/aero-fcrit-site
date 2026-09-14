@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import HeroCarousel from "./HeroCarousel.jsx";
+import { LiquidButton } from "./ui/liquid-glass-button.jsx";
 
 const STATS = [
   { num: "40+", label: "Active members" },
@@ -75,18 +76,12 @@ export default function Hero() {
             </p>
 
             <div className="flex gap-3.5 flex-wrap">
-              <Link
-                to="/drones"
-                className="inline-flex items-center gap-2 font-mono text-[0.78rem] tracking-wider uppercase font-medium px-5 py-[11px] rounded-sm bg-signal text-[#171006] hover:bg-orange-400 transition-colors"
-              >
-                See the builds
-              </Link>
-              <Link
-                to="/sponsors"
-                className="inline-flex items-center gap-2 font-mono text-[0.78rem] tracking-wider uppercase font-medium px-5 py-[11px] rounded-sm border border-ink/25 hover:border-brass hover:text-brass transition-colors"
-              >
-                Sponsor the club
-              </Link>
+              <LiquidButton asChild variant="filled">
+                <Link to="/drones">See the builds</Link>
+              </LiquidButton>
+              <LiquidButton asChild variant="outline">
+                <Link to="/sponsors">Sponsor the club</Link>
+              </LiquidButton>
             </div>
           </div>
         </div>
