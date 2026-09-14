@@ -1,238 +1,423 @@
 // FlightSimEasterEgg.jsx
-// A tiny 15-second dodge game rendered on a <canvas>, styled entirely in
-// the site's blueprint/brass/cyan palette. Steer a paper plane with
-// arrow keys or WASD, dodge the drifting "flak" circles, see how many
-// you can clear before time's up. Triggered by typing "game" (handled
-// in EasterEggs.jsx) — this component only exists in the DOM while
-// active, so it costs nothing when idle.
+// "Aero Dash" — a tiny flappy-plane canvas mini-game, styled in the site's
+// blueprint/brass/signal palette. Space, click, or tap to flap; dodge the
+// pipes. Triggered by typing "game" (handled in EasterEggs.jsx) — this
+// component only exists in the DOM while active, so it costs nothing idle.
+//
+// Ported from a standalone vanilla-JS build that had a server-backed
+// leaderboard (api('/api/game-scores')). This site has no such endpoint, so
+// scoring here is local-only: best score persists per-browser in
+// localStorage, same as the sound preference and the secret unlock below.
 
 import { useEffect, useRef, useState } from "react";
 
-const GAME_DURATION_MS = 15000;
-const CANVAS_W = 640;
-const CANVAS_H = 360;
-const PLANE_R = 10;
-const MOVE_SPEED = 4.2;
+const SOUND_KEY = "aero-fcrit-game-sound";
+const SECRET_KEY = "aero-fcrit-game-secret-unlocked";
+const BEST_KEY = "aero-fcrit-game-best";
+
+// Rare unlock: a 1-in-50 shot at each 10-point milestone gives an alternate
+// flap sound + a gold plane skin, permanently, for this browser.
+const EASTER_MILESTONE_EVERY = 10;
+const EASTER_ODDS = 1 / 50;
+
+const GAME_W = 640;
+const GAME_H = 360;
+const GRAVITY = 0.45;
+const FLAP = -7.5;
+const PIPE_GAP = 140;
+const PIPE_W = 46;
+const PIPE_SPEED = 3.2;
+const SPAWN_EVERY = 95;
+const PLANE_X = 90;
+const PLANE_R = 12;
+
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  }
+  return audioCtx;
+}
+function beep(soundOn, freq, duration, type = "sine", gainStart = 0.15) {
+  if (!soundOn) return;
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(gainStart, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + duration);
+}
 
 export default function FlightSimEasterEgg({ onClose }) {
   const canvasRef = useRef(null);
-  const [phase, setPhase] = useState("playing"); // "playing" | "done"
-  const [finalScore, setFinalScore] = useState(0);
+  const [phase, setPhase] = useState("ready"); // "ready" | "playing" | "done"
+  const [score, setScore] = useState(0);
+  const [best, setBest] = useState(() => Number(localStorage.getItem(BEST_KEY) ?? 0));
+  const [soundOn, setSoundOn] = useState(() => (localStorage.getItem(SOUND_KEY) ?? "1") === "1");
+  const [secretUnlocked, setSecretUnlocked] = useState(
+    () => localStorage.getItem(SECRET_KEY) === "1"
+  );
+  const [unlockToast, setUnlockToast] = useState(false);
+
+  const soundOnRef = useRef(soundOn);
+  soundOnRef.current = soundOn;
+  const secretRef = useRef(secretUnlocked);
+  secretRef.current = secretUnlocked;
+
+  function sfxFlap() {
+    if (secretRef.current) {
+      beep(soundOnRef.current, 660, 0.06, "triangle", 0.09);
+      setTimeout(() => beep(soundOnRef.current, 880, 0.06, "triangle", 0.07), 40);
+    } else {
+      beep(soundOnRef.current, 520, 0.09, "square", 0.08);
+    }
+  }
+  function sfxScore() {
+    beep(soundOnRef.current, 880, 0.12, "triangle", 0.12);
+    setTimeout(() => beep(soundOnRef.current, 1180, 0.12, "triangle", 0.1), 60);
+  }
+  function sfxCrash() {
+    beep(soundOnRef.current, 140, 0.4, "sawtooth", 0.16);
+  }
+
+  // Draw an idle blueprint frame before the first game starts.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    drawBackground(ctx);
+    drawPlane(ctx, { y: GAME_H / 2, vy: 0 }, secretUnlocked);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
+    if (phase !== "playing") return;
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    const keys = { up: false, down: false, left: false, right: false };
-    const plane = { x: 70, y: CANVAS_H / 2 };
+    const plane = { y: GAME_H / 2, vy: 0 };
     let obstacles = [];
-    let score = 0;
-    let hitFlash = 0;
-    let shake = 0;
-    let lastSpawn = 0;
+    let frame = 0;
+    let runScore = 0;
+    let lastEasterCheckScore = 0;
     let rafId;
     let done = false;
-    const startTime = performance.now();
 
-    function onKeyDown(e) {
-      const k = e.key.toLowerCase();
-      if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d", "escape"].includes(k)) {
-        e.preventDefault();
+    function maybeTriggerEasterEgg() {
+      if (secretRef.current) return;
+      if (runScore === 0 || runScore % EASTER_MILESTONE_EVERY !== 0) return;
+      if (runScore === lastEasterCheckScore) return;
+      lastEasterCheckScore = runScore;
+      if (Math.random() < EASTER_ODDS) {
+        secretRef.current = true;
+        setSecretUnlocked(true);
+        localStorage.setItem(SECRET_KEY, "1");
+        setUnlockToast(true);
+        setTimeout(() => setUnlockToast(false), 2600);
       }
-      if (k === "escape") {
-        finish();
-        return;
-      }
-      if (k === "arrowup" || k === "w") keys.up = true;
-      if (k === "arrowdown" || k === "s") keys.down = true;
-      if (k === "arrowleft" || k === "a") keys.left = true;
-      if (k === "arrowright" || k === "d") keys.right = true;
     }
-    function onKeyUp(e) {
-      const k = e.key.toLowerCase();
-      if (k === "arrowup" || k === "w") keys.up = false;
-      if (k === "arrowdown" || k === "s") keys.down = false;
-      if (k === "arrowleft" || k === "a") keys.left = false;
-      if (k === "arrowright" || k === "d") keys.right = false;
+
+    function onFlap() {
+      if (done) return;
+      plane.vy = FLAP;
+      sfxFlap();
+    }
+    function onKeyDown(e) {
+      if (e.code === "Space" || e.key === " ") {
+        e.preventDefault();
+        onFlap();
+      } else if (e.key === "Escape") {
+        finish();
+      }
     }
     window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-
-    function spawnObstacle() {
-      const r = 12 + Math.random() * 12;
-      obstacles.push({
-        x: CANVAS_W + r,
-        y: r + Math.random() * (CANVAS_H - r * 2),
-        r,
-        speed: 2.4 + Math.random() * 1.6,
-        scored: false,
-        hit: false,
-      });
-    }
 
     function finish() {
       if (done) return;
       done = true;
-      setFinalScore(score);
-      setPhase("done");
       cancelAnimationFrame(rafId);
       window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-      setTimeout(() => onClose(), 1800);
+      sfxCrash();
+      setScore(runScore);
+      setBest((prevBest) => {
+        const next = Math.max(prevBest, runScore);
+        localStorage.setItem(BEST_KEY, String(next));
+        return next;
+      });
+      setPhase("done");
     }
 
-    function drawPlane(x, y) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.fillStyle = "#ce9e52";
-      ctx.strokeStyle = "#7fc8be";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(14, 0);
-      ctx.lineTo(-10, -8);
-      ctx.lineTo(-4, 0);
-      ctx.lineTo(-10, 8);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
-    }
+    function loop() {
+      frame++;
+      plane.vy += GRAVITY;
+      plane.y += plane.vy;
 
-    function loop(now) {
-      const elapsed = now - startTime;
-      if (elapsed >= GAME_DURATION_MS) {
+      if (frame % SPAWN_EVERY === 1) {
+        const gapY = 40 + Math.random() * (GAME_H - 80 - PIPE_GAP);
+        obstacles.push({ x: GAME_W, gapY, passed: false });
+      }
+      obstacles.forEach((o) => (o.x -= PIPE_SPEED));
+      obstacles = obstacles.filter((o) => o.x > -PIPE_W);
+
+      let crashed = plane.y - PLANE_R < 0 || plane.y + PLANE_R > GAME_H;
+      obstacles.forEach((o) => {
+        if (!o.passed && o.x + PIPE_W < PLANE_X) {
+          o.passed = true;
+          runScore++;
+          setScore(runScore);
+          sfxScore();
+          maybeTriggerEasterEgg();
+        }
+        const withinX = PLANE_X + PLANE_R > o.x && PLANE_X - PLANE_R < o.x + PIPE_W;
+        const hitsGap = plane.y - PLANE_R < o.gapY || plane.y + PLANE_R > o.gapY + PIPE_GAP;
+        if (withinX && hitsGap) crashed = true;
+      });
+
+      drawBackground(ctx);
+      drawObstacles(ctx, obstacles);
+      drawPlane(ctx, plane, secretRef.current);
+      drawHud(ctx, runScore);
+
+      if (crashed) {
         finish();
         return;
       }
-
-      // movement
-      if (keys.up) plane.y -= MOVE_SPEED;
-      if (keys.down) plane.y += MOVE_SPEED;
-      if (keys.left) plane.x -= MOVE_SPEED;
-      if (keys.right) plane.x += MOVE_SPEED;
-      plane.x = Math.max(PLANE_R + 4, Math.min(CANVAS_W * 0.6, plane.x));
-      plane.y = Math.max(PLANE_R + 4, Math.min(CANVAS_H - PLANE_R - 4, plane.y));
-
-      // spawn
-      if (now - lastSpawn > 750) {
-        spawnObstacle();
-        lastSpawn = now;
-      }
-
-      // update obstacles
-      obstacles.forEach((o) => {
-        o.x -= o.speed;
-        const dx = o.x - plane.x;
-        const dy = o.y - plane.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (!o.hit && dist < o.r + PLANE_R - 4) {
-          o.hit = true;
-          hitFlash = 1;
-          shake = 8;
-        }
-        if (!o.scored && o.x + o.r < plane.x) {
-          o.scored = true;
-          score += 1;
-        }
-      });
-      obstacles = obstacles.filter((o) => o.x + o.r > -20);
-
-      if (hitFlash > 0) hitFlash -= 0.04;
-      if (shake > 0) shake *= 0.85;
-
-      // draw
-      ctx.save();
-      const sx = (Math.random() - 0.5) * shake;
-      const sy = (Math.random() - 0.5) * shake;
-      ctx.translate(sx, sy);
-
-      ctx.fillStyle = "#0c1a17";
-      ctx.fillRect(-10, -10, CANVAS_W + 20, CANVAS_H + 20);
-
-      // faint blueprint grid
-      ctx.strokeStyle = "rgba(127,200,190,0.08)";
-      ctx.lineWidth = 1;
-      for (let gx = 0; gx < CANVAS_W; gx += 32) {
-        ctx.beginPath();
-        ctx.moveTo(gx, 0);
-        ctx.lineTo(gx, CANVAS_H);
-        ctx.stroke();
-      }
-      for (let gy = 0; gy < CANVAS_H; gy += 32) {
-        ctx.beginPath();
-        ctx.moveTo(0, gy);
-        ctx.lineTo(CANVAS_W, gy);
-        ctx.stroke();
-      }
-
-      obstacles.forEach((o) => {
-        ctx.beginPath();
-        ctx.fillStyle = o.hit ? "rgba(226,87,45,0.35)" : "rgba(127,200,190,0.16)";
-        ctx.strokeStyle = o.hit ? "#e2572b" : "#7fc8be";
-        ctx.lineWidth = 1.5;
-        ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      });
-
-      drawPlane(plane.x, plane.y);
-
-      if (hitFlash > 0) {
-        ctx.fillStyle = `rgba(226,87,45,${hitFlash * 0.25})`;
-        ctx.fillRect(-10, -10, CANVAS_W + 20, CANVAS_H + 20);
-      }
-
-      ctx.restore();
-
-      // HUD (not shaken)
-      ctx.fillStyle = "#f1ecdd";
-      ctx.font = "12px 'IBM Plex Mono', monospace";
-      ctx.fillText(`SCORE  ${score}`, 14, 22);
-      const secondsLeft = Math.max(0, Math.ceil((GAME_DURATION_MS - elapsed) / 1000));
-      ctx.fillText(`T-${secondsLeft}s`, CANVAS_W - 60, 22);
-
       rafId = requestAnimationFrame(loop);
     }
 
-    rafId = requestAnimationFrame(loop);
+    function onCanvasClick() {
+      onFlap();
+    }
+    canvas.addEventListener("pointerdown", onCanvasClick);
 
+    rafId = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
+      canvas.removeEventListener("pointerdown", onCanvasClick);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [phase]);
+
+  function startGame() {
+    ensureAudio();
+    setScore(0);
+    setPhase("playing");
+  }
+
+  function toggleSound() {
+    setSoundOn((prev) => {
+      const next = !prev;
+      localStorage.setItem(SOUND_KEY, next ? "1" : "0");
+      if (next) ensureAudio();
+      return next;
+    });
+  }
+
+  // Global Escape-to-close and Space-to-start while not mid-run.
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === "Escape") {
+        onClose?.();
+      } else if ((e.code === "Space" || e.key === " ") && phase !== "playing") {
+        e.preventDefault();
+        startGame();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [phase, onClose]);
 
   return (
-    <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative">
-        <canvas
-          ref={canvasRef}
-          width={CANVAS_W}
-          height={CANVAS_H}
-          className="rounded border border-brass/40 shadow-[0_0_60px_-10px_rgba(206,158,82,0.35)] max-w-[92vw] h-auto"
-        />
-        {phase === "playing" && (
-          <button
-            onClick={onClose}
-            aria-label="Close mini game"
-            className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-hangardeep border border-brass/50 text-ink flex items-center justify-center font-mono text-sm hover:border-brass transition-colors"
-          >
-            ×
-          </button>
-        )}
-        {phase === "playing" && (
-          <p className="text-center font-mono text-[0.68rem] text-inkdim tracking-wider uppercase mt-3">
-            Arrows / WASD to steer — dodge the flak — Esc to bail
-          </p>
-        )}
-        {phase === "done" && (
-          <p className="text-center font-display font-bold text-xl text-brass mt-4 uppercase tracking-wide">
-            Mission complete — {finalScore} cleared
-          </p>
-        )}
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-hangardeep/90 backdrop-blur-sm px-4">
+      <div className="relative w-full max-w-[640px]">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-display font-extrabold uppercase text-xl text-ink">
+            Aero <span className="text-signal">Dash</span>
+          </h2>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleSound}
+              className="font-mono text-[0.7rem] uppercase tracking-wider border border-ink/30 rounded-sm px-2.5 py-1.5 text-ink hover:border-brass hover:text-brass transition-colors"
+            >
+              {soundOn ? "Sound on" : "Sound off"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close game"
+              className="font-mono text-[0.7rem] uppercase tracking-wider border border-ink/30 rounded-sm px-2.5 py-1.5 text-ink hover:border-signal hover:text-signal transition-colors"
+            >
+              Esc
+            </button>
+          </div>
+        </div>
+
+        <div className="relative rounded-sm overflow-hidden border border-brass/30 shadow-2xl">
+          <canvas
+            ref={canvasRef}
+            width={GAME_W}
+            height={GAME_H}
+            className="block w-full h-auto cursor-pointer touch-none"
+          />
+
+          {phase !== "playing" && (
+            <div className="absolute inset-0 flex items-center justify-center bg-hangardeep/70 text-center px-6">
+              {phase === "done" ? (
+                <div>
+                  <p className="font-display font-extrabold uppercase text-2xl text-ink mb-1">
+                    Crashed — score {score}
+                  </p>
+                  <p className="font-mono text-xs uppercase tracking-wider text-ink/80 mb-5">
+                    Best: {best}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={startGame}
+                    className="font-mono text-[0.72rem] uppercase tracking-wider font-medium px-5 py-[10px] rounded-sm bg-signal text-[#171006] hover:bg-orange-400 transition-colors"
+                  >
+                    Play again
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <p className="font-display font-extrabold uppercase text-2xl text-ink mb-1">
+                    Ready for takeoff?
+                  </p>
+                  <p className="font-mono text-xs uppercase tracking-wider text-ink/80 mb-5">
+                    Space / click to flap
+                  </p>
+                  <button
+                    type="button"
+                    onClick={startGame}
+                    className="font-mono text-[0.72rem] uppercase tracking-wider font-medium px-5 py-[10px] rounded-sm bg-signal text-[#171006] hover:bg-orange-400 transition-colors"
+                  >
+                    Start game
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {unlockToast && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 font-mono text-[0.7rem] uppercase tracking-wider bg-hangardeep border border-brass/50 text-brass px-3.5 py-2 rounded-sm shadow-lg">
+              Rare unlock: Golden Wings + secret flap sound
+            </div>
+          )}
+        </div>
+
+        <p className="font-mono text-[0.72rem] uppercase tracking-wider text-ink mt-3 text-center">
+          Best: {best} {secretUnlocked && <span className="text-brass">— Golden Wings unlocked</span>}
+        </p>
       </div>
     </div>
   );
+}
+
+// ---- Canvas drawing helpers (site blueprint palette) ----
+
+function drawBackground(ctx) {
+  ctx.fillStyle = "#0c1a17"; // hangardeep
+  ctx.fillRect(0, 0, GAME_W, GAME_H);
+  ctx.strokeStyle = "rgba(127,200,190,0.12)"; // linecyan, faint
+  ctx.lineWidth = 1;
+  for (let gx = 0; gx < GAME_W; gx += 28) {
+    ctx.beginPath();
+    ctx.moveTo(gx, 0);
+    ctx.lineTo(gx, GAME_H);
+    ctx.stroke();
+  }
+  for (let gy = 0; gy < GAME_H; gy += 28) {
+    ctx.beginPath();
+    ctx.moveTo(0, gy);
+    ctx.lineTo(GAME_W, gy);
+    ctx.stroke();
+  }
+}
+
+function drawObstacles(ctx, obstacles) {
+  obstacles.forEach((o) => {
+    ctx.fillStyle = "#1a342c"; // panel
+    ctx.fillRect(o.x, 0, PIPE_W, o.gapY);
+    ctx.fillRect(o.x, o.gapY + PIPE_GAP, PIPE_W, GAME_H - (o.gapY + PIPE_GAP));
+    ctx.strokeStyle = "#e2572b"; // signal
+    ctx.lineWidth = 2;
+    ctx.strokeRect(o.x, 0, PIPE_W, o.gapY);
+    ctx.strokeRect(o.x, o.gapY + PIPE_GAP, PIPE_W, GAME_H - (o.gapY + PIPE_GAP));
+  });
+}
+
+function drawPlane(ctx, plane, secretUnlocked) {
+  ctx.save();
+  ctx.translate(PLANE_X, plane.y);
+  const angle = Math.max(-0.5, Math.min(0.9, plane.vy / 12));
+  ctx.rotate(angle);
+
+  const bodyGrad = ctx.createLinearGradient(-PLANE_R, 0, PLANE_R + 8, 0);
+  if (secretUnlocked) {
+    bodyGrad.addColorStop(0, "#a97a2e");
+    bodyGrad.addColorStop(0.5, "#ffdd8a");
+    bodyGrad.addColorStop(1, "#ce9e52"); // brass
+  } else {
+    bodyGrad.addColorStop(0, "#a5461f");
+    bodyGrad.addColorStop(0.5, "#f2733f");
+    bodyGrad.addColorStop(1, "#e2572b"); // signal
+  }
+
+  // Rear stabilizer fin
+  ctx.fillStyle = secretUnlocked ? "#ce9e52" : "#e2572b";
+  ctx.beginPath();
+  ctx.moveTo(-PLANE_R * 0.6, -PLANE_R * 0.15);
+  ctx.lineTo(-PLANE_R * 1.15, -PLANE_R * 0.95);
+  ctx.lineTo(-PLANE_R * 0.35, -PLANE_R * 0.15);
+  ctx.closePath();
+  ctx.fill();
+
+  // Rear wing (lower)
+  ctx.beginPath();
+  ctx.moveTo(-PLANE_R * 0.2, PLANE_R * 0.15);
+  ctx.lineTo(-PLANE_R * 0.9, PLANE_R * 1.05);
+  ctx.lineTo(PLANE_R * 0.1, PLANE_R * 0.35);
+  ctx.closePath();
+  ctx.fill();
+
+  // Fuselage body
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.moveTo(PLANE_R + 8, 0);
+  ctx.quadraticCurveTo(PLANE_R * 0.5, -PLANE_R * 0.85, -PLANE_R, -PLANE_R * 0.55);
+  ctx.lineTo(-PLANE_R * 0.35, 0);
+  ctx.lineTo(-PLANE_R, PLANE_R * 0.55);
+  ctx.quadraticCurveTo(PLANE_R * 0.5, PLANE_R * 0.85, PLANE_R + 8, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "rgba(15,10,4,0.35)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Cockpit window
+  ctx.fillStyle = "rgba(241,236,221,0.85)"; // ink, translucent
+  ctx.beginPath();
+  ctx.ellipse(PLANE_R * 0.15, -PLANE_R * 0.08, PLANE_R * 0.32, PLANE_R * 0.22, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawHud(ctx, score) {
+  ctx.font = "bold 30px monospace";
+  ctx.textBaseline = "top";
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(12,26,23,0.9)"; // hangardeep outline for contrast
+  ctx.strokeText(String(score), 16, 14);
+  ctx.fillStyle = "#f1ecdd"; // ink
+  ctx.fillText(String(score), 16, 14);
 }
